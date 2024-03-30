@@ -9,6 +9,9 @@ from config_reader import config
 
 from keyboards.dialog.windows import (
     get_main_window,
+    get_child_settings_window,
+    get_profile_window,
+    get_gender_window
 
 )
 
@@ -24,18 +27,32 @@ async def main():
     )
     dp = Dispatcher()
 
-    dialog = Dialog(
-        get_main_window()
+    start_dialog = Dialog(
+        get_main_window(),
     )
-    
+
+    dialog_tails = Dialog(
+        get_child_settings_window(),
+        get_gender_window()
+    )
+
+    dialog_profile = Dialog(
+        get_profile_window()
+    )
+
     setup_dialogs(dp)
 
-    # include aiogram_dialog
-    dp.include_router(dialog)
-
-    # include other routers
+    # include other routers 
+    # MAIN ROUTER REGISTRATION MUST BE UPPER THAN AIOGRAM_DIALOG routers!
     dp.include_routers(
         start.router,
+    )
+
+    # include aiogram_dialogs
+    dp.include_routers(
+        start_dialog,
+        dialog_profile,
+        dialog_tails
     )
 
     await dp.start_polling(

@@ -1,10 +1,14 @@
-from aiogram.types import CallbackQuery
-
-from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog import DialogManager
 
 
-def get_setted_child_settings(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
+async def get_setted_child_settings(dialog_manager: DialogManager, **kwargs):
+    gender = f'{dialog_manager.dialog_data.get('gender', False)}'
+    name = f'Имя({dialog_manager.dialog_data.get('name', 'Имя')})'
+    age = f'Возраст({dialog_manager.dialog_data.get('age', 'Возраст')})'
+    activities = f'Увлечения({dialog_manager.dialog_data.get('activites', 'Увлечения')})'
     return {
-        ''
+        'gender': '' if not gender else gender,
+        'name': name,
+        'age': age,
+        'activities': activities,
     }

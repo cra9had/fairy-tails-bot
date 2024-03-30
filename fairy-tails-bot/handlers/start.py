@@ -12,4 +12,4 @@ router = Router()
 
 @router.message(Command('start'))
 async def start_cmd(message: Message, dialog_manager: DialogManager):
-    await dialog_manager.start(MainWindow.my_profile, data={'user': message.from_user.id}, mode=StartMode.RESET_STACK)
+    await dialog_manager.start(MainWindow.start, data={'user': message.from_user.id}, mode=StartMode.RESET_STACK)
