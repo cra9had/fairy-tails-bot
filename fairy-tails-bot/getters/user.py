@@ -2,13 +2,13 @@ from aiogram_dialog import DialogManager
 
 
 async def get_setted_child_settings(dialog_manager: DialogManager, **kwargs):
-    gender = f'{dialog_manager.dialog_data.get('gender', False)}'
-    name = f'Имя({dialog_manager.dialog_data.get('name', 'Имя')})'
-    age = f'Возраст({dialog_manager.dialog_data.get('age', 'Возраст')})'
-    activities = f'Увлечения({dialog_manager.dialog_data.get('activites', 'Увлечения')})'
+    gender = dialog_manager.dialog_data.get('gender')
+    name = dialog_manager.dialog_data.get('name')
+    age = dialog_manager.dialog_data.get('age')
+    activities = dialog_manager.dialog_data.get('activites')
     return {
-        'gender': '' if not gender else gender,
-        'name': name,
-        'age': age,
-        'activities': activities,
+        'gender': '' if not gender else f'| {gender}',
+        'name': '' if not name else f'| {name}',
+        'age': '' if not age else f'| {age}',
+        'activities': '' if not activities else f'| {activities}',
     }

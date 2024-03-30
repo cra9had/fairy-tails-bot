@@ -1,7 +1,7 @@
 from aiogram.types import ContentType
 
 from aiogram_dialog.widgets.text import Format, Const
-from aiogram_dialog.widgets.kbd import Button, Row, Column
+from aiogram_dialog.widgets.kbd import Button, Row, Column, Group
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.window import Window
 
@@ -17,6 +17,9 @@ from on_clicks.user import (
     switch_to_all_children_settings,
     switch_to_gender,
     set_child_gender,
+    switch_to_name,
+    switch_to_age,
+    set_child_age,
 )
 
 def get_main_window():
@@ -43,9 +46,17 @@ def get_child_settings_window():
                 id='gender',
                 on_click=switch_to_gender
             ),
-            Button(Format('{name}'), id='name'),
-            Button(Format('{age}'), id='age'),
-            Button(Format('{activities}'), id='activities'),
+            Button(
+                Format('Имя{name}'), 
+                id='name',
+                on_click=switch_to_name
+            ),
+            Button(
+                Format('Возраст{age}'), 
+                id='age',
+                on_click=switch_to_age
+            ),
+            Button(Format('Увлечения{activities}'), id='activities'),
             Button(
                 Format('Отправить данные'), 
                 id='send_data', 
@@ -89,6 +100,24 @@ def get_name_window():
         Const('Введите имя\n(отправьте сообщением в чат)'),
         MessageInput(child_name_handler, content_types=[ContentType.TEXT]),
         state=Tail.name
+    )
+    
+    return window
+
+
+def get_age_window():
+    window = Window(
+        Const('Выберите возраст'),
+        Group(
+            *[Button(Const(str(i)), id=str(i), on_click=set_child_age) for i in range(3, 9)],
+            width=2
+        ),
+        Button(
+            Const('Назад'),
+            id='back_to_all',
+            on_click=switch_to_all_children_settings,
+        ),
+        state=Tail.age
     )
     
     return window
