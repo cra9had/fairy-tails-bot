@@ -18,7 +18,9 @@ from keyboards.dialog.start_windows import (
 )
 
 from keyboards.dialog.profile_window import (
-    get_profile_window
+    get_profile_window,
+    get_my_tails_window,
+    get_current_tail_window,
 )
 
 from keyboards.dialog.child_windows import (
@@ -50,11 +52,13 @@ async def main():
         get_gender_window(),
         get_name_window(),
         get_age_window(),
-        get_child_activities_window()
+        get_child_activities_window(),
+        get_current_tail_window()
     )
 
     dialog_profile = Dialog(
-        get_profile_window()
+        get_profile_window(),
+        get_my_tails_window()
     )
 
     setup_dialogs(dp)

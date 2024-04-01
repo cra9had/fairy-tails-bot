@@ -9,7 +9,7 @@ class Profile(StatesGroup):
     my_profile = State()
     my_subscriptions = State() # active subscriptions
     subscription = State() # main window with all types of "subscription"
-    all_users_tails = State() # gives all users tails
+    my_tails = State() # gives all users tails
 
 
 class Tail(StatesGroup):
@@ -26,7 +26,7 @@ class Tail(StatesGroup):
     
     episode = State() # every click gets new data
     
-    episode_ended = State() # user see this window only when he've just bought this tail and if he has scrolled all episodes.
+    episode_ended = State() # user see this window only when he've scrolled all episodes.
                             # he can't scroll episodes back. He can do it only in his profile
 
     # single window says that user dont have subscription 
