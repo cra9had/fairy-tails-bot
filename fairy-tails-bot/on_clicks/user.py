@@ -5,17 +5,27 @@ from aiogram.types import CallbackQuery
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog import DialogManager, StartMode
 
-from states.user import Tail, MainWindow
+from states.user import Tail
+
+
+async def buy_new_tail(
+    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
+):
+    user_subscribed: bool = dialog_manager.middleware_data['user_subscribed']
+
+    if not user_subscribed:
+        await dialog_manager.switch_to(Tail.user_dont_have_subscription)
+
 
 
 async def check_user_setted(
     callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ):
     all_settings = {"gender", "name", "age", "activities"}
-    setted: bool = dialog_manager.dialog_data.keys() ^ all_settings
+    setted: bool = (not dialog_manager.dialog_data.keys() ^ all_settings)
 
-    if not setted:
-        await dialog_manager.switch_to()
+    if setted:
+        await dialog_manager.switch_to(Tail.tail)
 
     elif not dialog_manager.dialog_data.get("can_send_data"):
         await callback.answer("Вы должны заполнить все поля", show_alert=True)
@@ -54,6 +64,11 @@ async def switch_to_activities(
 ):
     await dialog_manager.switch_to(Tail.activities)
 
+
+async def switch_to_getting_tail(
+    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
+):
+    await dialog_manager.switch_to(Tail.tail)
 
 # ----------------------SETTERS----------------------
 

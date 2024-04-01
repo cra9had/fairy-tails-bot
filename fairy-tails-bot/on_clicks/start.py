@@ -21,19 +21,26 @@ async def set_tail_dialog(
 
 async def set_profile_dialog(
     callback: CallbackQuery, button: Button, dialog_manager: DialogManager
-):
-    can_have_audio: bool = False # IS USER HAVE SUBSCRIPTION
+):  
+    tails = {
+        1: 'Сказка о рыбаке и рыбке', 
+        2: 'О царевиче и сером волке', 
+        3: 'Иванушка-дурачок',
+    }
+
+    max_pages = 3
+
+    season = dialog_manager.dialog_data.get('season', 0) + 1
+
+    can_have_audio: bool = dialog_manager.middleware_data['can_have_audio']
 
     # LOAD USER TAILS HERE FROM DATABASE!
     data = {
+        'season': season,
         'can_have_audio': can_have_audio,
-        'current_page': 1,
-        'max_pages': 3, # quantity of all the tails for pagination
-        'tails': {
-            1: 'Сказка о рыбаке и рыбке', 
-            2: 'О царевиче и сером волке', 
-            3: 'Иванушка-дурачок',
-        }
+        'current_tail_index': 1, # default starts from first tail DONT CHANGE
+        'max_pages': max_pages, # LOAD FROM DATABASE quantity of all the tails for pagination
+        'tails': tails
         }  
     
     await dialog_manager.start(

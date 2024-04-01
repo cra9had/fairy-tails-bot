@@ -42,18 +42,27 @@ async def switch_to_choosen_tail(
 async def set_previous_page(
         callback: Optional[CallbackQuery], button: Optional[Button], dialog_manager: DialogManager,
 ):
-    if dialog_manager.dialog_data['current_page'] == 1:
+    if dialog_manager.dialog_data['current_tail_index'] == 1:
         await callback.answer('Вы достигли первой сказки', show_alert=True)
         return
     
-    dialog_manager.dialog_data['current_page'] -= 1
+    dialog_manager.dialog_data['current_tail_index'] -= 1
 
 
 async def set_next_page(
         callback: Optional[CallbackQuery], button: Optional[Button], dialog_manager: DialogManager,
 ):
-    if dialog_manager.dialog_data['current_page'] == dialog_manager.dialog_data['max_pages']:
+    if dialog_manager.dialog_data['current_tail_index'] == dialog_manager.dialog_data['max_pages']:
         await callback.answer('Вы достигли последней сказки', show_alert=True)
         return
     
-    dialog_manager.dialog_data['current_page'] += 1
+    dialog_manager.dialog_data['current_tail_index'] += 1
+
+
+async def set_next_episode(
+    callback: Optional[CallbackQuery], button: Optional[Button], dialog_manager: DialogManager,
+):
+    if dialog_manager.dialog_data['current_episode_index'] == 10:
+        await dialog_manager.switch_to(Tail.season_ended)
+        return
+    dialog_manager.dialog_data['current_episode_index'] += 1

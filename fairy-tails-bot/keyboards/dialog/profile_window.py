@@ -20,6 +20,7 @@ from on_clicks.user_profile import (
     switch_to_choosen_tail,
     set_previous_page,
     set_next_page,
+    set_next_episode,
 )
 
 from getters.user import (
@@ -27,6 +28,9 @@ from getters.user import (
     get_current_tail,
 
 )
+
+from on_clicks.user import switch_to_getting_tail
+
 
 BACK_TO_PROFILE = Button(Const('Назад'), id='back_to_profile',on_click=set_profile_dialog)
 
@@ -69,7 +73,7 @@ def get_my_tails_window():
         Format('Сказка {current_tail}'),
         Row(
             Button(Const('<'), id='previous_page', on_click=set_previous_page),
-            Button(Format('{current_page}/{max_pages}'), id='pagination'),
+            Button(Format('{current_tail_index}/{max_pages}'), id='pagination'),
             Button(Const('>'), id='next_page', on_click=set_next_page),
         ),
         Button(Const('Выбрать'), id='choose_tail', on_click=switch_to_choosen_tail),
@@ -83,13 +87,24 @@ def get_my_tails_window():
 
 def get_current_tail_window():
     window = Window(
-        Format('Сказка номер {current_tail_index}\nНазвание серии {current_episode_text}'),
+        Format('Сезон {season}\nСказка номер {current_tail_index}\nНомер серии {current_episode_index}'),
         StaticMedia(url=Format('{photo}'), type=ContentType.PHOTO),
         Button(Const('Получить аудио файл к сказке', when=F['dialog_data']['can_have_audio']), id='get_audio'),
-        Button(Const('Следующая серия'), id='next_episode'),
+        Button(Const('Следующая серия'), id='next_episode', on_click=set_next_episode),
         BACK_TO_PROFILE,
         getter=get_current_tail,
         state=Tail.episode
+    )
+
+    return window
+
+
+def get_episode_ended_window():
+    window = Window(
+        Const('Эпизод окончен, он находится в вашем личном кабинете.'),
+        Button(Const('Вернуться в меню'), id='back_to_start', on_click=set_start_dialog),
+        Button(Const('Получить следующий сезон'), id='get_next_season', on_click=switch_to_getting_tail),
+        state=Tail.season_ended
     )
 
     return window

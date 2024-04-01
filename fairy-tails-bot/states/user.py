@@ -26,7 +26,7 @@ class Tail(StatesGroup):
     
     episode = State() # every click gets new data
     
-    episode_ended = State() # user see this window only when he've scrolled all episodes.
+    season_ended = State() # user see this window only when he've scrolled all episodes.
                             # he can't scroll episodes back. He can do it only in his profile
 
     # single window says that user dont have subscription 

@@ -21,6 +21,13 @@ from keyboards.dialog.profile_window import (
     get_profile_window,
     get_my_tails_window,
     get_current_tail_window,
+    get_episode_ended_window,
+
+)
+
+from keyboards.dialog.buy_subscription import (
+    get_buy_subscription,
+    get_user_dont_have_subsription,
 )
 
 from keyboards.dialog.child_windows import (
@@ -32,9 +39,17 @@ from keyboards.dialog.child_windows import (
 
 )
 
+from keyboards.dialog.tail_window import (
+    get_tail_window,
+
+)
+
+from middlewares.user.check_user_subscription import CheckUserSubscription
+
 from dotenv import load_dotenv
 
 load_dotenv()
+
 
 async def main():
     bot = Bot(
@@ -48,18 +63,24 @@ async def main():
     )
 
     dialog_tails = Dialog(
+        get_user_dont_have_subsription(),
         get_child_settings_window(),
         get_gender_window(),
         get_name_window(),
+        get_current_tail_window(),
         get_age_window(),
         get_child_activities_window(),
-        get_current_tail_window()
+        get_episode_ended_window(),
+        get_tail_window(),
     )
 
     dialog_profile = Dialog(
         get_profile_window(),
-        get_my_tails_window()
+        get_my_tails_window(),
+        get_buy_subscription(),
     )
+
+    dp.callback_query.middleware(CheckUserSubscription())
 
     setup_dialogs(dp)
 
