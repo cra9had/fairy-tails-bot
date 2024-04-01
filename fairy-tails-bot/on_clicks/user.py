@@ -5,25 +5,15 @@ from aiogram.types import CallbackQuery
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog import DialogManager, StartMode
 
-from states.user import Tail
-
-async def set_tail_dialog(
-    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
-):
-    data = {}  # LOAD USER SETTED SETTING HERE FROM DATABASE!
-    await dialog_manager.start(
-        state=Tail.all_child_settings,
-        mode=StartMode.RESET_STACK,
-        data=data,  # LOAD ALL USER SETTED SETTING TO SHOW ONES IN THE FUTURE
-    )
+from states.user import Tail, MainWindow
 
 
 async def check_user_setted(
     callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ):
-    all_settings = {'gender', 'name', 'age', 'activities'}
+    all_settings = {"gender", "name", "age", "activities"}
     setted: bool = dialog_manager.dialog_data.keys() ^ all_settings
-    
+
     if not setted:
         await dialog_manager.switch_to()
 
@@ -36,9 +26,7 @@ async def check_user_setted(
 
 
 async def switch_to_all_children_settings(
-    callback: Optional[CallbackQuery],
-    button: Optional[Button],
-    dialog_manager: DialogManager,
+    callback: Optional[CallbackQuery], button: Optional[Button], dialog_manager: DialogManager,
 ):
     await dialog_manager.switch_to(Tail.all_child_settings)
 
@@ -62,12 +50,13 @@ async def switch_to_age(
 
 
 async def switch_to_activities(
-        callback: CallbackQuery, button: Button, dialog_manager: DialogManager
+    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ):
     await dialog_manager.switch_to(Tail.activities)
 
 
 # ----------------------SETTERS----------------------
+
 
 async def set_child_activities(
     callback: CallbackQuery, button: Button, dialog_manager: DialogManager
@@ -77,6 +66,7 @@ async def set_child_activities(
     await callback.answer("Увлечения установлены")
     # return user back to menu
     await switch_to_all_children_settings(None, None, dialog_manager=dialog_manager)
+
 
 async def set_child_gender(
     callback: CallbackQuery, button: Button, dialog_manager: DialogManager

@@ -3,24 +3,30 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
 
 from aiogram_dialog import Dialog, setup_dialogs
 
 
+from handlers import (
+    start,
 
-from keyboards.dialog.windows import (
-    get_main_window,
+)
+
+from keyboards.dialog.start_windows import (
+    get_main_window
+)
+
+from keyboards.dialog.profile_window import (
+    get_profile_window
+)
+
+from keyboards.dialog.child_windows import (
     get_child_settings_window,
-    get_profile_window,
     get_gender_window,
     get_name_window,
     get_age_window,
     get_child_activities_window,
-
-)
-
-from handlers import (
-    start,
 
 )
 
@@ -30,7 +36,8 @@ load_dotenv()
 
 async def main():
     bot = Bot(
-        token=os.getenv('BOT_TOKEN')
+        token=os.getenv('BOT_TOKEN'),
+        default=DefaultBotProperties(parse_mode='HTML')
     )
     dp = Dispatcher()
 

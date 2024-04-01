@@ -5,13 +5,11 @@ class MainWindow(StatesGroup):
     start = State() # just useless state to start either left dialog or right dialog
 
 
-class AllUsersTails(StatesGroup):
-    main = State() # gives all users tails
-
-
 class Profile(StatesGroup):
-    my_profile = State() 
+    my_profile = State()
+    my_subscriptions = State() # active subscriptions
     subscription = State() # main window with all types of "subscription"
+    all_users_tails = State() # gives all users tails
 
 
 class Tail(StatesGroup):
