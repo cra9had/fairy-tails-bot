@@ -1,3 +1,4 @@
+import os
 import asyncio
 import logging
 
@@ -5,7 +6,7 @@ from aiogram import Bot, Dispatcher
 
 from aiogram_dialog import Dialog, setup_dialogs
 
-from config_reader import config
+
 
 from keyboards.dialog.windows import (
     get_main_window,
@@ -13,7 +14,9 @@ from keyboards.dialog.windows import (
     get_profile_window,
     get_gender_window,
     get_name_window,
-    get_age_window
+    get_age_window,
+    get_child_activities_window,
+
 )
 
 from handlers import (
@@ -21,10 +24,13 @@ from handlers import (
 
 )
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 async def main():
     bot = Bot(
-        token=config.bot_token.get_secret_value()
+        token=os.getenv('BOT_TOKEN')
     )
     dp = Dispatcher()
 
@@ -37,6 +43,7 @@ async def main():
         get_gender_window(),
         get_name_window(),
         get_age_window(),
+        get_child_activities_window()
     )
 
     dialog_profile = Dialog(
@@ -45,10 +52,11 @@ async def main():
 
     setup_dialogs(dp)
 
-    # include other routers 
+    # include main routers 
     # MAIN ROUTER REGISTRATION MUST BE UPPER THAN AIOGRAM_DIALOG routers!
     dp.include_routers(
         start.router,
+        
     )
 
     # include aiogram_dialogs

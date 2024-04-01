@@ -5,7 +5,7 @@ async def get_setted_child_settings(dialog_manager: DialogManager, **kwargs):
     gender = dialog_manager.dialog_data.get('gender')
     name = dialog_manager.dialog_data.get('name')
     age = dialog_manager.dialog_data.get('age')
-    activities = dialog_manager.dialog_data.get('activites')
+    activities = dialog_manager.dialog_data.get('activities')
     return {
         'gender': '' if not gender else f'| {gender}',
         'name': '' if not name else f'| {name}',
