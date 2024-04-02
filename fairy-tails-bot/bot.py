@@ -14,7 +14,8 @@ from handlers import (
 )
 
 from keyboards.dialog.start_windows import (
-    get_main_window
+    get_main_window,
+    get_more_info_window
 )
 
 from keyboards.dialog.profile_window import (
@@ -60,6 +61,7 @@ async def main():
 
     start_dialog = Dialog(
         get_main_window(),
+        get_more_info_window(),
     )
 
     dialog_tails = Dialog(

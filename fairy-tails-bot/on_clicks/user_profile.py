@@ -10,17 +10,6 @@ from states.user import Profile, Tail
 
 
 # ----------------------SWITCHERS----------------------
-async def switch_to_my_tails(
-    callback: Optional[CallbackQuery], button: Optional[Button], dialog_manager: DialogManager,
-):
-    await dialog_manager.switch_to(Profile.my_tails)
-
-
-async def switch_to_my_subscriptions(
-    callback: Optional[CallbackQuery], button: Optional[Button], dialog_manager: DialogManager,
-):
-    await dialog_manager.switch_to(Profile.my_subscriptions)
-
 
 async def switch_to_buy_subsription(
     callback: Optional[CallbackQuery], button: Optional[Button], dialog_manager: DialogManager,
@@ -34,7 +23,7 @@ async def switch_to_choosen_tail(
 ):
     data = dialog_manager.dialog_data
     await dialog_manager.start(Tail.episode,data=data, mode=StartMode.RESET_STACK)
-
+    
 
 # ----------------------SETTERS----------------------
 

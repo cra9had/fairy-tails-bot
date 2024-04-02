@@ -3,7 +3,7 @@ from aiogram.fsm.state import State, StatesGroup
 
 class MainWindow(StatesGroup):
     start = State() # just useless state to start either left dialog or right dialog
-
+    more_info = State()
 
 class Profile(StatesGroup):
     my_profile = State()

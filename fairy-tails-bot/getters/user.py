@@ -45,7 +45,7 @@ async def get_my_tails(
 async def get_current_tail(
         event_from_user: CallbackQuery, dialog_manager: DialogManager, **kwargs
 ):
-    dialog_manager.dialog_data.update(dialog_manager.start_data)
+    dialog_manager.dialog_data.update(dialog_manager.start_data) # load info from previous windows
     current_tail_index = dialog_manager.dialog_data['current_tail_index']
     
     # GET something about episode: text, name, maybe short description FROM DATABASE
