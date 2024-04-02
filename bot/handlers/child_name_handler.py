@@ -3,7 +3,7 @@ from aiogram.types import Message
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import MessageInput
 
-from states.user import Tail
+from bot.states.user import Tail
 
 
 # handler for aiogram_dialog

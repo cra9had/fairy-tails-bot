@@ -8,15 +8,15 @@ from aiogram_dialog.widgets.kbd import Button, Column, Group, SwitchTo
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.window import Window
 
-from states.user import Tail
+from bot.states.user import Tail
 
-from getters.user import get_setted_child_settings
+from bot.getters.user import get_setted_child_settings
 
-from handlers.child_name_handler import child_name_handler
+from bot.handlers.child_name_handler import child_name_handler
 
-from getters.user import TO_START_BTN, TO_CHILD_SETTINGS_BTN
+from bot.getters.user import TO_START_BTN, TO_CHILD_SETTINGS_BTN
 
-from on_clicks.user import (
+from bot.on_clicks.user import (
     check_user_setted,
     set_child_gender,
     set_child_age,

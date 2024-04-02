@@ -7,7 +7,7 @@ from aiogram.types.input_file import URLInputFile
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog import DialogManager, StartMode
 
-from states.user import Tail, Profile, MainWindow
+from bot.states.user import Tail, Profile, MainWindow
 
 
 async def to_profile(*args):

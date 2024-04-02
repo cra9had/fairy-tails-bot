@@ -7,25 +7,25 @@ from aiogram_dialog.widgets.kbd import Button, SwitchTo, Group, Row
 from aiogram_dialog.widgets.media import StaticMedia
 from aiogram_dialog.window import Window
 
-from states.user import Profile, Tail, MainWindow
+from bot.states.user import Profile, Tail, MainWindow
 
-from getters.user import get_fullname
+from bot.getters.user import get_fullname
 
-from on_clicks.user_profile import (
+from bot.on_clicks.user_profile import (
     switch_to_choosen_tail,
     set_previous_page,
     set_next_page,
     set_next_episode,
 )
 
-from getters.user import (
+from bot.getters.user import (
     get_my_tails,
     get_current_tail,
 )
 
-from getters.user import TO_PROFILE_BTN, TO_START_BTN, TO_BUY_SUB_BTN
+from bot.getters.user import TO_PROFILE_BTN, TO_START_BTN, TO_BUY_SUB_BTN
 
-from on_clicks.user import (
+from bot.on_clicks.user import (
     send_audio_file
 )
 

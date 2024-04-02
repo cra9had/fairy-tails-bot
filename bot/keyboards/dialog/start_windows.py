@@ -3,10 +3,10 @@ from aiogram_dialog.widgets.kbd import Button, Row, SwitchTo, Back
 
 from aiogram_dialog.window import Window
 
-from states.user import MainWindow, Tail
+from bot.states.user import MainWindow, Tail
 
-from getters.user import get_fullname, TO_PROFILE_BTN
-from on_clicks.user import to_child
+from bot.getters.user import get_fullname, TO_PROFILE_BTN
+from bot.on_clicks.user import to_child
 
 def get_main_window():
     window = Window(

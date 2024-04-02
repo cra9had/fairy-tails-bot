@@ -3,11 +3,11 @@ from aiogram_dialog.widgets.kbd import Button, Row
 
 from aiogram_dialog.window import Window
 
-from states.user import Tail
+from bot.states.user import Tail
 
-from on_clicks.user import buy_new_tail
+from bot.on_clicks.user import buy_new_tail
 
-from getters.user import get_generated_plan_and_photo
+from bot.getters.user import get_generated_plan_and_photo
 
 def get_tail_window():
     window = Window(

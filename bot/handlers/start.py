@@ -4,7 +4,7 @@ from aiogram.filters import Command
 
 from aiogram_dialog import DialogManager, StartMode
 
-from states.user import MainWindow
+from bot.states.user import MainWindow
 
 
 router = Router()

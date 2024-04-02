@@ -6,9 +6,9 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const
 
-from on_clicks.user import to_child, to_profile, to_start, to_buy_subscription
+from bot.on_clicks.user import to_child, to_profile, to_start, to_buy_subscription
 
-from states.user import Tail
+from bot.states.user import Tail
 
 
 TO_PROFILE_BTN = Button(Const('В профиль'), id='back_to_profile', on_click=to_profile)

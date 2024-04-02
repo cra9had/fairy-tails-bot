@@ -7,22 +7,20 @@ from aiogram.client.default import DefaultBotProperties
 
 from aiogram_dialog import Dialog, setup_dialogs
 
-
-from handlers import (
+from bot.handlers import (
     start,
-
 )
 
-from getters.user import (
+from bot.getters.user import (
     get_full_info_for_dialog,
 )
 
-from keyboards.dialog.start_windows import (
+from bot.keyboards.dialog.start_windows import (
     get_main_window,
     get_more_info_window
 )
 
-from keyboards.dialog.profile_window import (
+from bot.keyboards.dialog.profile_window import (
     get_profile_window,
     get_my_tails_window,
     get_current_tail_window,
@@ -30,12 +28,12 @@ from keyboards.dialog.profile_window import (
     get_my_subscriptions_window,
 )
 
-from keyboards.dialog.buy_subscription import (
+from bot.keyboards.dialog.buy_subscription import (
     get_buy_subscription,
     get_user_dont_have_subsription,
 )
 
-from keyboards.dialog.child_windows import (
+from bot.keyboards.dialog.child_windows import (
     get_child_settings_window,
     get_gender_window,
     get_name_window,
@@ -44,16 +42,16 @@ from keyboards.dialog.child_windows import (
 
 )
 
-from keyboards.dialog.tail_window import (
+from bot.keyboards.dialog.tail_window import (
     get_tail_window,
 
 )
 
-from middlewares.user.check_user_subscription import CheckUserSubscription
+from bot.middlewares.user.check_user_subscription import CheckUserSubscription
 
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(dotenv_path='.env')
 
 
 async def main():
@@ -98,7 +96,7 @@ async def main():
     # MAIN ROUTER REGISTRATION MUST BE UPPER THAN AIOGRAM_DIALOG routers!
     dp.include_routers(
         start.router,
-        
+
     )
 
     # include aiogram_dialogs

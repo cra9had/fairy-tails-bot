@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog import DialogManager, StartMode
 
-from states.user import Profile, Tail
+from bot.states.user import Profile, Tail
 
 
 

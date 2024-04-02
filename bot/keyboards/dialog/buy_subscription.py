@@ -2,9 +2,9 @@ from aiogram_dialog import Window
 from aiogram_dialog.widgets.kbd import Button, Group
 from aiogram_dialog.widgets.text import Const
 
-from states.user import Tail, Profile
+from bot.states.user import Tail, Profile
 
-from getters.user import TO_START_BTN, TO_BUY_SUB_BTN
+from bot.getters.user import TO_START_BTN, TO_BUY_SUB_BTN
 
 
 def get_buy_subscription():
