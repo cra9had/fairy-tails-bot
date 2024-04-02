@@ -2,19 +2,16 @@ from aiogram.types import ContentType
 
 from magic_filter import F
 
-from aiogram_dialog.widgets.text import Format, Const
-from aiogram_dialog.widgets.kbd import Button, Row, SwitchTo
+from aiogram_dialog.widgets.text import Format, Const, Case
+from aiogram_dialog.widgets.kbd import Button, SwitchTo, Group, Row
 from aiogram_dialog.widgets.media import StaticMedia
 from aiogram_dialog.window import Window
 
-from states.user import Profile, Tail
+from states.user import Profile, Tail, MainWindow
 
 from getters.user import get_fullname
 
-from on_clicks.start import set_start_dialog, set_profile_dialog
-
 from on_clicks.user_profile import (
-    switch_to_buy_subsription,
     switch_to_choosen_tail,
     set_previous_page,
     set_next_page,
@@ -24,13 +21,13 @@ from on_clicks.user_profile import (
 from getters.user import (
     get_my_tails,
     get_current_tail,
-
 )
 
-from on_clicks.user import switch_to_getting_tail
+from getters.user import TO_PROFILE_BTN, TO_START_BTN, TO_BUY_SUB_BTN
 
-
-BACK_TO_PROFILE = Button(Const('Назад'), id='back_to_profile',on_click=set_profile_dialog)
+from on_clicks.user import (
+    send_audio_file
+)
 
 def get_profile_window():
     window = Window(
@@ -47,18 +44,9 @@ def get_profile_window():
             id="my_subscriptions", 
             state=Profile.my_subscriptions
         ),
-        Button(
-            Const("Приобрести пакет"),
-            id="buy_subscription",
-            on_click=switch_to_buy_subsription,
-        ),
+        TO_BUY_SUB_BTN,
+        TO_START_BTN,
 
-        Button(
-            Const("Назад"), 
-            id="back_to_start", 
-            on_click=set_start_dialog
-        ),
-        
         state=Profile.my_profile,
         getter=get_fullname,
     )
@@ -66,18 +54,36 @@ def get_profile_window():
     return window
 
 
+def selector(data, case: Case, manager):
+    return bool(manager.dialog_data['tails'])
+
 def get_my_tails_window():
     window = Window(
-        Format('Сказка {current_tail}'),
-        Row(
-            Button(Const('<'), id='previous_page', on_click=set_previous_page),
-            Button(Format('{current_tail_index}/{max_pages}'), id='pagination'),
-            Button(Const('>'), id='next_page', on_click=set_next_page),
+        Case(
+            {
+                True: Format('Сказка {current_tail}'),
+                False: Const('У вас ещё нет сказок'),
+            },
+            selector=selector,
         ),
-        Button(Const('Выбрать'), id='choose_tail', on_click=switch_to_choosen_tail),
-        BACK_TO_PROFILE,
+        Group(
+            Row(
+                Button(Const('<'), id='previous_page', on_click=set_previous_page),
+                Button(Format('{current_tail_index}/{max_pages}'), id='pagination'),
+                Button(Const('>'), id='next_page', on_click=set_next_page),
+            ),
+            Button(Const('Выбрать'), id='choose_tail', on_click=switch_to_choosen_tail),
+            TO_PROFILE_BTN,
+            when=F['dialog_data']['tails'], # at least 1 tail exists,
+            id='tails_exist',
+        ),
+        Group(
+            TO_START_BTN,
+            id='tails_not_exist',
+            when=~F['dialog_data']['tails'],
+        ),
         state=Profile.my_tails,
-        getter=get_my_tails
+        getter=get_my_tails,
     )
 
     return window
@@ -87,9 +93,9 @@ def get_current_tail_window():
     window = Window(
         Format('Сезон {season}\nСказка номер {current_tail_index}\nНомер серии {current_episode_index}'),
         StaticMedia(url=Format('{photo}'), type=ContentType.PHOTO),
-        Button(Const('Получить аудио файл к сказке', when=F['dialog_data']['can_have_audio']), id='get_audio'),
+        Button(Const('Получить аудио файл к сказке', when=F['middleware_data']['can_have_audio']), id='get_audio', on_click=send_audio_file),
         Button(Const('Следующая серия'), id='next_episode', on_click=set_next_episode),
-        BACK_TO_PROFILE,
+        TO_PROFILE_BTN,
         getter=get_current_tail,
         state=Tail.episode
     )
@@ -100,9 +106,21 @@ def get_current_tail_window():
 def get_episode_ended_window():
     window = Window(
         Const('Эпизод окончен, он находится в вашем личном кабинете.'),
-        Button(Const('Вернуться в меню'), id='back_to_start', on_click=set_start_dialog),
-        Button(Const('Получить следующий сезон'), id='get_next_season', on_click=switch_to_getting_tail),
+        TO_START_BTN,
+        SwitchTo(Const('Получить следующий сезон'), id='get_next_season', state=Tail.tail),
         state=Tail.season_ended
+    )
+
+    return window
+
+
+def get_my_subscriptions_window():
+    window = Window(
+        Const('1) Пакет на N сказок, осталось Z дней'),
+        Const('2) Пакет на N сказок, осталось X дней'),
+        TO_BUY_SUB_BTN,
+        TO_PROFILE_BTN,
+        state=Profile.my_subscriptions
     )
 
     return window

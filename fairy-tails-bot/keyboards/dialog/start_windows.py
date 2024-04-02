@@ -3,22 +3,19 @@ from aiogram_dialog.widgets.kbd import Button, Row, SwitchTo, Back
 
 from aiogram_dialog.window import Window
 
-from states.user import MainWindow
+from states.user import MainWindow, Tail
 
-from on_clicks.start import set_tail_dialog, set_profile_dialog
-
-from getters.user import get_fullname
+from getters.user import get_fullname, TO_PROFILE_BTN
+from on_clicks.user import to_child
 
 def get_main_window():
     window = Window(
         Format("Привет {full_name}"), # get safe bold full_name from getter
         Row(
             SwitchTo(Const('Подробнее'), state=MainWindow.more_info, id='more_info'),
-            Button(Const("Мой кабинет"), id="profile", on_click=set_profile_dialog),
+            TO_PROFILE_BTN
         ),
-        Button(
-            Const("Получить сказку(бесплатно)"), id="get_tail", on_click=set_tail_dialog
-        ),
+        Button(Const('Получить сказку(бесплатно)'), id="back_to_start", on_click=to_child),
         state=MainWindow.start,
         getter=get_fullname
     )

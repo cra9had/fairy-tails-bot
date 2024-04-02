@@ -4,9 +4,7 @@ from aiogram_dialog.widgets.text import Const
 
 from states.user import Tail, Profile
 
-from on_clicks.start import set_start_dialog
-
-from on_clicks.user_profile import switch_to_buy_subsription
+from getters.user import TO_START_BTN, TO_BUY_SUB_BTN
 
 
 def get_buy_subscription():
@@ -28,7 +26,7 @@ def get_buy_subscription():
             width=2
         ),
 
-        Button(Const('В меню'), id='go_to_start', on_click=set_start_dialog),
+        TO_START_BTN,
         state=Profile.subscription
     )
 
@@ -38,7 +36,7 @@ def get_buy_subscription():
 def get_user_dont_have_subsription():
     window = Window(
         Const('У вас не приобретён пакет'),
-        Button(Const('Приобести'), id='buy_subscription', on_click=switch_to_buy_subsription),
+        TO_BUY_SUB_BTN,
         state=Tail.user_dont_have_subscription,
     )
 

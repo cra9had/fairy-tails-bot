@@ -14,7 +14,7 @@ from getters.user import get_setted_child_settings
 
 from handlers.child_name_handler import child_name_handler
 
-from on_clicks.start import set_start_dialog
+from getters.user import TO_START_BTN, TO_CHILD_SETTINGS_BTN
 
 from on_clicks.user import (
     check_user_setted,
@@ -42,9 +42,9 @@ def get_child_settings_window():
                 on_click=switch_to_activities,
             ),
             Button(
-                Format("Отправить данные"), id="send_data", on_click=check_user_setted
+                Const("Отправить данные"), id="send_data", on_click=check_user_setted
             ),
-            Button(Const('Назад'), id='back_to_start', on_click=set_start_dialog),
+            TO_START_BTN,
         ),
         getter=get_setted_child_settings,
         state=Tail.all_child_settings,
@@ -58,9 +58,7 @@ def get_gender_window():
         Const("Выберите пол"),
         Button(Const("Мальчик"), id="boy", on_click=set_child_gender),
         Button(Const("Девочка"), id="girl", on_click=set_child_gender),
-        Button(
-            Const("Назад"), id="back_to_all", on_click=switch_to_all_children_settings
-        ),
+        TO_CHILD_SETTINGS_BTN,
         state=Tail.gender,
     )
 

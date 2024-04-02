@@ -13,6 +13,10 @@ from handlers import (
 
 )
 
+from getters.user import (
+    get_full_info_for_dialog,
+)
+
 from keyboards.dialog.start_windows import (
     get_main_window,
     get_more_info_window
@@ -23,7 +27,7 @@ from keyboards.dialog.profile_window import (
     get_my_tails_window,
     get_current_tail_window,
     get_episode_ended_window,
-
+    get_my_subscriptions_window,
 )
 
 from keyboards.dialog.buy_subscription import (
@@ -62,6 +66,7 @@ async def main():
     start_dialog = Dialog(
         get_main_window(),
         get_more_info_window(),
+        on_start=get_full_info_for_dialog
     )
 
     dialog_tails = Dialog(
@@ -74,12 +79,15 @@ async def main():
         get_child_activities_window(),
         get_episode_ended_window(),
         get_tail_window(),
+        on_start=get_full_info_for_dialog
     )
 
     dialog_profile = Dialog(
         get_profile_window(),
         get_my_tails_window(),
         get_buy_subscription(),
+        get_my_subscriptions_window(),
+        on_start=get_full_info_for_dialog
     )
 
     dp.callback_query.middleware(CheckUserSubscription())

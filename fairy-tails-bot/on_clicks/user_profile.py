@@ -11,18 +11,12 @@ from states.user import Profile, Tail
 
 # ----------------------SWITCHERS----------------------
 
-async def switch_to_buy_subsription(
-    callback: Optional[CallbackQuery], button: Optional[Button], dialog_manager: DialogManager,
-):
-    # we reset stack here because we have an access to this window from many other places
-    await dialog_manager.start(Profile.subscription, mode=StartMode.RESET_STACK)
-
 
 async def switch_to_choosen_tail(
     callback: Optional[CallbackQuery], button: Optional[Button], dialog_manager: DialogManager,
 ):
     data = dialog_manager.dialog_data
-    await dialog_manager.start(Tail.episode,data=data, mode=StartMode.RESET_STACK)
+    await dialog_manager.start(Tail.episode, data=data, mode=StartMode.RESET_STACK)
     
 
 # ----------------------SETTERS----------------------

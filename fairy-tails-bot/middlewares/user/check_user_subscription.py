@@ -11,8 +11,8 @@ class CheckUserSubscription(BaseMiddleware):
         data: Dict[str, Any],
     ) -> Any:
         # SOME ACTIONS TO GET USER`s SUBSCRIPTION
-        is_can_have_audio: bool = False
-        is_user_have_sub: bool = False
+        is_can_have_audio: bool = True
+        is_user_have_sub: bool = True
         
         data['can_have_audio'] = is_can_have_audio
         data['user_subscribed'] = is_user_have_sub
