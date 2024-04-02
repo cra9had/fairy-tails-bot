@@ -1,11 +1,25 @@
-### Создано с помощью
+# Fairy Tales Bot
 
-* Python
-* Aiogram
-* Aiogram_dialog
-* Sqlite3
-* AI
+## Настройка и запуск бота
 
+### Настройка бота:
+1. Переименовать файл `.example_env` в `.env`
+2. В файле `.env` указать BOT_TOKEN тг-бота и прочие необходимые настройки (по завершении работы - указать, какие) 
+3. Файл `bot_example.service` из каталога `systemd` переименовать и перенести в
+`/etc/systemd/system/`
+
+### Запуск:
+1. `systemctl enable bot_example --now`
+
+## Для разработчика
+
+### Логи работы
+1. `systemctl status bot_example.service`
+2. Логи системного журнала за последние N минут: `journalctl -u bot --since "Nm ago"`
+
+### Перезапуск сервиса
+1. `systemctl daemon-reload`
+2. `systemctl restart bot`
 
 
 ## Краткое описание

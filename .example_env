@@ -1,0 +1,3 @@
+# bot configuration
+BOT_TOKEN=123456789:ABCDefGHiJKLmOpRSTQVWxYZ
+ACTIVITIES={"activity_1":"activity1_button", "activity_2":"activity2_button"}

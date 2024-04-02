@@ -1,0 +1,15 @@
+[Unit]
+Description=Aiogram bot
+After=network.target
+
+[Service]
+User=root
+Group=root
+Type=simple
+WorkingDirectory=/example/path/to/work/dir
+ExecStart=/example/path/to/work/dir/python_dir/python -m bot
+EnvironmentFile=/example/path/to/work/dir/.env
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
