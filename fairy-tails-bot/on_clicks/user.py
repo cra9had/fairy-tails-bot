@@ -66,38 +66,6 @@ async def check_user_setted(
         return
 
 
-# ----------------------SWITCHERS----------------------
-
-
-async def switch_to_all_children_settings(
-    callback: Optional[CallbackQuery], button: Optional[Button], dialog_manager: DialogManager,
-):
-    await dialog_manager.switch_to(Tail.all_child_settings)
-
-
-async def switch_to_gender(
-    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
-):
-    await dialog_manager.switch_to(Tail.gender)
-
-
-async def switch_to_name(
-    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
-):
-    await dialog_manager.switch_to(Tail.name)
-
-
-async def switch_to_age(
-    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
-):
-    await dialog_manager.switch_to(Tail.age)
-
-
-async def switch_to_activities(
-    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
-):
-    await dialog_manager.switch_to(Tail.activities)
-
 # ----------------------SETTERS----------------------
 
 
@@ -108,7 +76,7 @@ async def set_child_activities(
     dialog_manager.dialog_data["activities"] = button.text.text
     await callback.answer("Увлечения установлены")
     # return user back to menu
-    await switch_to_all_children_settings(None, None, dialog_manager=dialog_manager)
+    await dialog_manager.switch_to(Tail.all_child_settings)
 
 
 async def set_child_gender(
@@ -118,7 +86,7 @@ async def set_child_gender(
     dialog_manager.dialog_data["gender"] = button.text.text
     await callback.answer("Пол установлен")
     # return user back to menu
-    await switch_to_all_children_settings(None, None, dialog_manager=dialog_manager)
+    await dialog_manager.switch_to(Tail.all_child_settings)
 
 
 async def set_child_age(
@@ -128,4 +96,4 @@ async def set_child_age(
     dialog_manager.dialog_data["age"] = button.widget_id
     await callback.answer("Возраст установлен")
     # return user back to menu
-    await switch_to_all_children_settings(None, None, dialog_manager=dialog_manager)
+    await dialog_manager.switch_to(Tail.all_child_settings)
