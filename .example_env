@@ -1,3 +1,5 @@
 # bot configuration
-BOT_TOKEN=123456789:ABCDefGHiJKLmOpRSTQVWxYZ
-ACTIVITIES={"activity_1":"activity1_button", "activity_2":"activity2_button"}
+BOT_TOKEN='123456789:ABCDefGHiJKLmOpRSTQVWxYZ'
+ACTIVITIES=["Космос и фантастика", "Супергерои", "Волшебство и магия", "Современный мир", "Пираты и море", "Подводный мир"]
+AUDIO_SUBS=["X сказок - 200р", "M сказок", "N сказок"]
+TEXT_SUBS=["X сказок - 100р", "M сказок", "N сказок"]
