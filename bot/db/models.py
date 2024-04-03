@@ -12,9 +12,16 @@ class User(Base):
     username: Mapped[Optional[str]]
     packages: Mapped["Package"] = relationship(back_populates="user")
     tales: Mapped["Tale"] = relationship(back_populates="user")
+    subscription: Mapped["Subscription"] = relationship(back_populates="user")
 
     def __repr__(self):
         return f'{self.tg_id=} {self.tales=}'
+
+
+class Subscription(Base):
+    tg_id: Mapped[int] = mapped_column(ForeignKey("users.tg_id"), primary_key=True)
+    till_end: Mapped[int]
+    user: Mapped["user"] = relationship(back_populates="subscription")
 
 
 class Package(Base):
@@ -72,3 +79,6 @@ class Chapter(Base):
     audio_chapter: Mapped[Optional[str]]
 
     episode: Mapped["Episode"] = relationship(back_populates="chapters")
+
+    def __repr__(self):
+        return f'{self.id=} {self.text_chapter=} {self.audio_chapter=}'
