@@ -8,9 +8,10 @@ from bot.states.user import MainWindow, Tail
 from bot.getters.user import get_fullname, TO_PROFILE_BTN
 from bot.on_clicks.user import to_child
 
+
 def get_main_window():
     window = Window(
-        Format("Привет {full_name}"), # get safe bold full_name from getter
+        Format("Привет {full_name}"),  # get safe bold full_name from getter
         Row(
             SwitchTo(Const('Подробнее'), state=MainWindow.more_info, id='more_info'),
             TO_PROFILE_BTN

@@ -12,7 +12,7 @@ from bot.states.user import Profile, Tail, MainWindow
 from bot.getters.user import get_fullname
 
 from bot.on_clicks.user_profile import (
-    switch_to_choosen_tail,
+    switch_to_chosen_tail,
     set_previous_page,
     set_next_page,
     set_next_episode,
@@ -72,7 +72,7 @@ def get_my_tails_window():
                 Button(Format('{current_tail_index}/{max_pages}'), id='pagination'),
                 Button(Const('>'), id='next_page', on_click=set_next_page),
             ),
-            Button(Const('Выбрать'), id='choose_tail', on_click=switch_to_choosen_tail),
+            Button(Const('Выбрать'), id='choose_tail', on_click=switch_to_chosen_tail),
             TO_PROFILE_BTN,
             when=F['dialog_data']['tails'], # at least 1 tail exists,
             id='tails_exist',

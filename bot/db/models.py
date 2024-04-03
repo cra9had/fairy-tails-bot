@@ -1,9 +1,9 @@
 from typing import Optional
 
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Float
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import declarative_base, relationship, mapped_column, Mapped
 
-Base = declarative_base()
+from bot.db.base import Base
 
 
 class User(Base):
