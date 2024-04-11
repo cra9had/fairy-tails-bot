@@ -19,6 +19,7 @@ class User(Base):
 
 
 class Subscription(Base):
+    __tablename__ = 'subscriptions'
     tg_id: Mapped[int] = mapped_column(ForeignKey("users.tg_id"), primary_key=True)
     till_end: Mapped[int]
     user: Mapped["user"] = relationship(back_populates="subscription")
