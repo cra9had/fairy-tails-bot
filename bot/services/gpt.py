@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import openai
 from openai import AsyncOpenAI
 from typing import List, Optional, Dict, Literal
 from .gpt_templates import SEASON_PLAN, FIRST_SERIES, NEXT_SERIES
@@ -19,6 +20,7 @@ class ChatGPT:
             session = requests.Session()
             session.proxies = {'http': proxy, 'https': proxy}
             session.auth = proxy_auth
+            openai.session = session
         self.client = AsyncOpenAI(
             api_key=os.getenv("OPENAI_API_KEY")
         )
