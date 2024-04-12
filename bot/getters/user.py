@@ -7,6 +7,7 @@ from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const
 
 from bot.on_clicks.user import to_child, to_profile, to_start, to_buy_subscription
+from bot.services.gpt import ChatGPT
 
 from bot.states.user import Tail
 
@@ -127,18 +128,18 @@ async def get_generated_plan_and_photo(
         current_tail_index = dialog_manager.dialog_data['current_tail_index']
         season = dialog_manager.dialog_data['tails'][current_tail_index]['season'] + 1
 
-    if season > 1:
-        previous_seasons = 'Тексты предыдущих сезонов...'  # FROM DATABASE
-        promt = f'Сделай мне сказку на основе материала {previous_seasons}'  # GENERATE NEW PROMT
-    else:
-        promt = f'Сделай мне сказку сезон {season}'
+    if season == 1:
+        gpt = ChatGPT()
 
-    all_episodes_plan = ['сказка'] * 10  # generated text from promt
-
-    episodes_1_to_5 = '\n'.join(all_episodes_plan[:6])
-    episodes_5_to_10 = '\n'.join(all_episodes_plan[6:])
+    prompt = gpt.get_season_plan(sex=dialog_manager.dialog_data.get("gender"),
+                                       name=dialog_manager.dialog_data.get("name"),
+                                       age=dialog_manager.dialog_data.get("age"),
+                                       interests=dialog_manager.dialog_data.get("activities"),)
+    plan = await gpt.get_text_by_prompt(
+        prompt
+    )
+    print(plan)
     return {
         'season': season,
-        'episodes_1_to_5': episodes_1_to_5,
-        'episodes_5_to_10': episodes_5_to_10,
+        'plan': plan
     }

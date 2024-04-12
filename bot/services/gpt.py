@@ -14,8 +14,8 @@ class ChatGPT:
         self.model = "gpt-4-turbo"
 
     @staticmethod
-    def get_season_plan(sex: Literal['Мальчик', 'Девочка'], name: str, age: int, interests: list[str]):
-        return SEASON_PLAN.format(sex=sex, name=name, age=age, interests=",".join(interests))
+    def get_season_plan(sex: Literal['Мальчик', 'Девочка'], name: str, age: int, interests: str):
+        return SEASON_PLAN.format(sex=sex, name=name, age=age, interests=interests)
 
     async def get_text_by_prompt(self, prompt: str) -> str:
         request = {

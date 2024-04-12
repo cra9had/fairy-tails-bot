@@ -52,9 +52,10 @@ async def send_audio_file(
 
 
 async def check_user_setted(
-    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
+        callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ):
-    dialog_manager.dialog_data['from_child_settings'] = True # because we can't continue tail from this window, only start new one
+    dialog_manager.dialog_data[
+        'from_child_settings'] = True  # because we can't continue tail from this window, only start new one
     all_settings = {"gender", "name", "age", "activities"}
     setted: bool = (all_settings & dialog_manager.dialog_data.keys()) == all_settings
 
@@ -70,7 +71,7 @@ async def check_user_setted(
 
 
 async def set_child_activities(
-    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
+        callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ):
     # HERE SOME LOGIC TO SET CHILD ACTUAL ACTIVITY TO DATABASE
     dialog_manager.dialog_data["activities"] = button.text.text
@@ -80,7 +81,7 @@ async def set_child_activities(
 
 
 async def set_child_gender(
-    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
+        callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ):
     # HERE SOME LOGIC TO SET CHILD ACTUAL GENDER TO DATABASE
     dialog_manager.dialog_data["gender"] = button.text.text
@@ -90,7 +91,7 @@ async def set_child_gender(
 
 
 async def set_child_age(
-    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
+        callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ):
     # HERE SOME LOGIC TO SET CHILD ACTUAL AGE TO DATABASE
     dialog_manager.dialog_data["age"] = button.widget_id
