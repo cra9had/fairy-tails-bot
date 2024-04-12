@@ -4,10 +4,21 @@ import os
 from openai import AsyncOpenAI
 from typing import List, Optional, Dict, Literal
 from .gpt_templates import SEASON_PLAN, FIRST_SERIES, NEXT_SERIES
+import requests
+from requests.auth import HTTPProxyAuth
+
 
 
 class ChatGPT:
     def __init__(self):
+        if os.getenv("OPENAI_PROXY"):
+            proxy = os.getenv("OPENAI_PROXY")
+            proxy_auth = HTTPProxyAuth(os.getenv("OPENAI_PROXY_USERNAME"), os.getenv("OPENAI_PROXY_PASSWORD"))
+
+            # Configure a session to use the proxy
+            session = requests.Session()
+            session.proxies = {'http': proxy, 'https': proxy}
+            session.auth = proxy_auth
         self.client = AsyncOpenAI(
             api_key=os.getenv("OPENAI_API_KEY")
         )
