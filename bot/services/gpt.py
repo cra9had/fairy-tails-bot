@@ -3,7 +3,7 @@ import json
 import os
 from openai import AsyncOpenAI
 from typing import List, Optional, Dict, Literal
-from .gpt_templates import SEASON_PLAN
+from .gpt_templates import SEASON_PLAN, FIRST_SERIES, NEXT_SERIES
 
 
 class ChatGPT:
@@ -30,6 +30,12 @@ class ChatGPT:
         obj = cls()
         obj.messages = json.loads(dump)
         return obj
+
+    async def generate_first_series(self):
+        return await self.get_text_by_prompt(FIRST_SERIES)
+
+    async def generate_next_series(self):
+        return await self.get_text_by_prompt(NEXT_SERIES)
 
     async def get_text_by_prompt(self, prompt: str) -> str:
         request = {
