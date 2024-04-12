@@ -2,6 +2,7 @@ import asyncio
 import json
 import os
 import openai
+from httpx import AsyncClient
 from openai import AsyncOpenAI
 from typing import List, Optional, Dict, Literal
 from .gpt_templates import SEASON_PLAN, FIRST_SERIES, NEXT_SERIES
@@ -13,16 +14,12 @@ from requests.auth import HTTPProxyAuth
 class ChatGPT:
     def __init__(self):
         if os.getenv("OPENAI_PROXY"):
-            proxy = os.getenv("OPENAI_PROXY")
-            proxy_auth = HTTPProxyAuth(os.getenv("OPENAI_PROXY_USERNAME"), os.getenv("OPENAI_PROXY_PASSWORD"))
-
-            # Configure a session to use the proxy
-            session = requests.Session()
-            session.proxies = {'http': proxy, 'https': proxy}
-            session.auth = proxy_auth
-            openai.session = session
+            http_client = AsyncClient(
+                proxies=os.getenv("OPENAI_PROXY"),
+            )
         self.client = AsyncOpenAI(
-            api_key=os.getenv("OPENAI_API_KEY")
+            api_key=os.getenv("OPENAI_API_KEY"),
+            http_client=http_client
         )
         self.messages: List[Optional[Dict]] = []
         self.model = "gpt-4-turbo"
