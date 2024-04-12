@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 from openai import AsyncOpenAI
 from typing import List, Optional, Dict, Literal
@@ -16,6 +17,19 @@ class ChatGPT:
     @staticmethod
     def get_season_plan(sex: Literal['Мальчик', 'Девочка'], name: str, age: int, interests: str):
         return SEASON_PLAN.format(sex=sex, name=name, age=age, interests=interests)
+
+    def dump(self):
+        return json.dumps(
+            {
+                "messages": self.messages
+            }
+        )
+
+    @classmethod
+    def loads(cls, dump):
+        obj = cls()
+        obj.messages = json.loads(dump)
+        return obj
 
     async def get_text_by_prompt(self, prompt: str) -> str:
         request = {
