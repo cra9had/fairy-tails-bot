@@ -2,7 +2,7 @@ import asyncio
 from typing import Literal
 
 from bot.services.gpt import ChatGPT
-from bot.services.gpt_templates import SEASON_PLAN, TALE_NAME
+from bot.services.gpt_templates import SEASON_PLAN, GET_TALE_NAME_PROMPT
 
 
 class TaleGetters:
@@ -21,5 +21,5 @@ class TaleGenerator:
                                                  use_history=True)
 
     async def generate_tale_title(self):
-        title = await self.gpt.get_text_by_prompt(TALE_NAME, use_history=True)
+        title = await self.gpt.get_text_by_prompt(GET_TALE_NAME_PROMPT, use_history=True)
         return title

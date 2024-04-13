@@ -4,7 +4,7 @@ import os
 import openai
 from openai import AsyncOpenAI
 from typing import List, Optional, Dict, Literal
-from .gpt_templates import SEASON_PLAN, FIRST_SERIES, NEXT_SERIES
+from .gpt_templates import SEASON_PLAN, FIRST_CHAPTER_PROMPT, NEXT_CHAPTER_PROMPT
 import requests
 from requests.auth import HTTPProxyAuth
 
@@ -37,10 +37,10 @@ class ChatGPT:
         self.messages = json.loads(dump)
 
     async def generate_first_series(self):
-        return await self.get_text_by_prompt(FIRST_SERIES)
+        return await self.get_text_by_prompt(FIRST_CHAPTER_PROMPT)
 
     async def generate_next_series(self):
-        return await self.get_text_by_prompt(NEXT_SERIES)
+        return await self.get_text_by_prompt(NEXT_CHAPTER_PROMPT)
 
     async def get_text_by_prompt(self, prompt: str, use_history: False) -> str:
         request = {
