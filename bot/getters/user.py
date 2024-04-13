@@ -1,3 +1,4 @@
+from pprint import pprint
 from typing import Optional
 from aiogram import html
 from aiogram.types import Message, CallbackQuery
@@ -5,9 +6,11 @@ from aiogram.types import Message, CallbackQuery
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.on_clicks.user import to_child, to_profile, to_start, to_buy_subscription
 from bot.services.gpt import ChatGPT
+from bot.services.tails_prompts import TaleGenerator
 
 from bot.states.user import Tail
 
@@ -120,7 +123,7 @@ async def get_current_tail(
 
 
 async def get_generated_plan_and_photo(
-        event_from_user: CallbackQuery, dialog_manager: DialogManager, **kwargs
+        event_from_user: CallbackQuery, dialog_manager: DialogManager, session: AsyncSession, **kwargs
 ):
     if dialog_manager.dialog_data['from_child_settings']:
         season = 1
@@ -129,17 +132,22 @@ async def get_generated_plan_and_photo(
         season = dialog_manager.dialog_data['tails'][current_tail_index]['season'] + 1
 
     if season == 1:
-        gpt = ChatGPT()
+        tale_generator = TaleGenerator()
+    pprint(kwargs)
 
-    prompt = gpt.get_season_plan(sex=dialog_manager.dialog_data.get("gender"),
-                                       name=dialog_manager.dialog_data.get("name"),
-                                       age=dialog_manager.dialog_data.get("age"),
-                                       interests=dialog_manager.dialog_data.get("activities"),)
-    plan = await gpt.get_text_by_prompt(
-        prompt
-    )
-    print(plan)
+    tale_plan = await tale_generator.generate_tale_plan(name=dialog_manager.dialog_data.get("name"),
+                                                        sex=dialog_manager.dialog_data.get("gender"),
+                                                        age=dialog_manager.dialog_data.get("age"),
+                                                        interests=dialog_manager.dialog_data.get("activities")
+                                                        )
+
+    tale_title = await tale_generator.generate_tale_title()
+
+    dialog_manager.dialog_data.update({'tale_plan': tale_plan,
+                                       'tale_title': tale_title,
+                                       'session': session})
+
     return {
         'season': season,
-        'plan': plan
+        'tale_plan': tale_plan,
     }

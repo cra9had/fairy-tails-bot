@@ -6,7 +6,9 @@ from aiogram.types.input_file import URLInputFile
 
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog import DialogManager, StartMode
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from bot.db.orm import create_tale
 from bot.states.user import Tail, Profile, MainWindow
 
 
@@ -31,19 +33,25 @@ async def to_buy_subscription(*args):
 
 
 async def buy_new_tail(
-    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
+        callback: CallbackQuery, button: Button, dialog_manager: DialogManager, **kwargs
 ):
     user_subscribed: bool = dialog_manager.middleware_data['user_subscribed']
-
     if not user_subscribed:
         await dialog_manager.switch_to(Tail.user_dont_have_subscription)
+
+    tale_plan = dialog_manager.dialog_data.get('tale_plan')
+    tale_title = dialog_manager.dialog_data.get('tale_title')
+    session = dialog_manager.dialog_data.get('session')
+
+    await create_tale(session, tale_title, tale_plan, callback.message.chat.id)
 
     await to_start(None, None, dialog_manager)
     await callback.message.answer('Ваша сказка успешно куплена и находится у вас в профиле!')
     await callback.message.answer_sticker('CAACAgIAAxkBAAEL1JxmC9SQJqwO9gX45wri2B5vw0lVLwAChAADpsrIDDCcD7Wym5gUNAQ')
 
+
 async def send_audio_file(
-    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
+        callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ):
     bot: Bot = dialog_manager.middleware_data['bot']
     user: User = dialog_manager.middleware_data['event_from_user']

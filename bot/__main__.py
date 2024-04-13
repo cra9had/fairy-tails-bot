@@ -44,8 +44,7 @@ async def main():
     )
 
     dp = Dispatcher()
-    dp.message.middleware(DbSessionMiddleware(db_pool))
-    dp.callback_query.middleware(DbSessionMiddleware(db_pool))
+
     dp.callback_query.middleware(CheckUserSubscription())
 
     start_dialog = Dialog(
@@ -79,6 +78,9 @@ async def main():
 
     # include main routers 
     # MAIN ROUTER REGISTRATION MUST BE UPPER THAN AIOGRAM_DIALOG routers!
+    dp.message.middleware(DbSessionMiddleware(db_pool))
+    dp.callback_query.middleware(DbSessionMiddleware(db_pool))
+
     dp.include_routers(
         start.router,
 

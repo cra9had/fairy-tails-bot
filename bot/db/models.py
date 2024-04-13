@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import Optional, List
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Text
 from sqlalchemy.orm import declarative_base, relationship, mapped_column, Mapped
 
 from bot.db.base import Base
@@ -11,7 +11,7 @@ class User(Base):
     tg_id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[Optional[str]]
     packages: Mapped["Package"] = relationship(back_populates="user")
-    tales: Mapped["Tale"] = relationship(back_populates="user")
+    tales: Mapped[List["Tale"]] = relationship(back_populates="user")
     subscription: Mapped["Subscription"] = relationship(back_populates="user")
 
     def __repr__(self):
@@ -22,7 +22,7 @@ class Subscription(Base):
     __tablename__ = 'subscriptions'
     tg_id: Mapped[int] = mapped_column(ForeignKey("users.tg_id"), primary_key=True)
     till_end: Mapped[int]
-    user: Mapped["user"] = relationship(back_populates="subscription")
+    user: Mapped["User"] = relationship(back_populates="subscription")
 
 
 class Package(Base):
@@ -42,6 +42,10 @@ class Tale(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str]
     seasons: Mapped["Season"] = relationship(back_populates='tale')
+    description_prompt: Mapped[str] = mapped_column(Text)
+
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.tg_id'))
+    user: Mapped["User"] = relationship(back_populates='tales')
 
     def __repr__(self):
         return f'{self.title=} {self.seasons=}'

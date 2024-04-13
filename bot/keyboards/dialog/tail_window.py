@@ -9,9 +9,10 @@ from bot.on_clicks.user import buy_new_tail
 
 from bot.getters.user import get_generated_plan_and_photo
 
+
 def get_tail_window():
     window = Window(
-        Format('План сказки на {season} сезон:\n{plan}'),
+        Format('План сказки на {season} сезон:\n {tale_plan}'),
         Button(Const('Получить сказку'), id='get_tail', on_click=buy_new_tail),
         state=Tail.tail,
         getter=get_generated_plan_and_photo
