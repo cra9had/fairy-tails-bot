@@ -23,7 +23,7 @@ from bot.keyboards.dialog.child_windows import (get_child_settings_window,
                                                 get_gender_window, get_name_window,
                                                 get_age_window, get_child_activities_window)
 
-from bot.keyboards.dialog.tail_window import get_tail_window
+from bot.keyboards.dialog.tail_window import get_descr_tail_window, get_chapter_window
 
 from bot.middlewares.user.check_user_subscription import CheckUserSubscription
 from bot.middlewares.db import DbSessionMiddleware
@@ -62,7 +62,8 @@ async def main():
         get_age_window(),
         get_child_activities_window(),
         get_episode_ended_window(),
-        get_tail_window(),
+        get_descr_tail_window(),
+        get_chapter_window(),
         on_start=get_full_info_for_dialog
     )
 

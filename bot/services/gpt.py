@@ -37,12 +37,12 @@ class ChatGPT:
         self.messages = json.loads(dump)
 
     async def generate_first_series(self):
-        return await self.get_text_by_prompt(FIRST_CHAPTER_PROMPT)
+        return await self.get_text_by_prompt(FIRST_CHAPTER_PROMPT, use_history=True)
 
     async def generate_next_series(self):
-        return await self.get_text_by_prompt(NEXT_CHAPTER_PROMPT)
+        return await self.get_text_by_prompt(NEXT_CHAPTER_PROMPT, use_history=True)
 
-    async def get_text_by_prompt(self, prompt: str, use_history: False) -> str:
+    async def get_text_by_prompt(self, prompt: str, use_history: bool = False) -> str:
         request = {
             "role": "user",
             "content": prompt
@@ -58,7 +58,7 @@ class ChatGPT:
                 [request,
                  {
                      "role": "assistant",
-                     "content": prompt
+                     "content": chat_completion.choices[0].message.content
                  }]
             )
 

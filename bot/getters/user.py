@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.on_clicks.user import to_child, to_profile, to_start, to_buy_subscription
 from bot.services.gpt import ChatGPT
-from bot.services.tails_prompts import TaleGenerator
+from bot.services.tales_prompts import TaleGenerator
 
 from bot.states.user import Tail
 
@@ -127,13 +127,13 @@ async def get_generated_plan_and_photo(
 ):
     if dialog_manager.dialog_data['from_child_settings']:
         season = 1
+        episode = 1
+        tale_generator = TaleGenerator()
+
     else:
         current_tail_index = dialog_manager.dialog_data['current_tail_index']
         season = dialog_manager.dialog_data['tails'][current_tail_index]['season'] + 1
-
-    if season == 1:
-        tale_generator = TaleGenerator()
-    pprint(kwargs)
+        tale_generator = dialog_manager.dialog_data['tale_generator'] or TaleGenerator()
 
     tale_plan = await tale_generator.generate_tale_plan(name=dialog_manager.dialog_data.get("name"),
                                                         sex=dialog_manager.dialog_data.get("gender"),
@@ -145,7 +145,9 @@ async def get_generated_plan_and_photo(
 
     dialog_manager.dialog_data.update({'tale_plan': tale_plan,
                                        'tale_title': tale_title,
-                                       'session': session})
+                                       'session': session,
+                                       'season': season,
+                                       'tale_generator': tale_generator})
 
     return {
         'season': season,

@@ -50,6 +50,10 @@ async def buy_new_tail(
     await callback.message.answer_sticker('CAACAgIAAxkBAAEL1JxmC9SQJqwO9gX45wri2B5vw0lVLwAChAADpsrIDDCcD7Wym5gUNAQ')
 
 
+async def go_chapter(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
+    await dialog_manager.switch_to(Tail.curr_chapter)
+
+
 async def send_audio_file(
         callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ):
