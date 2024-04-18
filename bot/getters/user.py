@@ -50,6 +50,9 @@ async def get_setted_child_settings(dialog_manager: DialogManager, **kwargs):
         'activities': activities,
     }
 
+async def get_state_to_wait(*args, **kwargs):
+    print(args)
+    dialog_manager: DialogManager = args[1]
 
 async def get_fullname(
         event_from_user: Message, dialog_manager: DialogManager, **kwargs

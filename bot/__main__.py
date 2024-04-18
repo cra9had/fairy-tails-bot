@@ -14,7 +14,7 @@ from bot.getters.user import get_full_info_for_dialog
 
 
 from bot.keyboards.dialog.main_windows import get_gender_window, get_age_window, get_child_activities_window, \
-    get_name_window, get_child_settings_window
+    get_name_window, get_child_settings_window, get_waiting_task_window
 
 from bot.middlewares.user.check_user_subscription import CheckUserSubscription
 from bot.middlewares.db import DbSessionMiddleware
@@ -44,6 +44,9 @@ async def main():
         get_child_activities_window(),
         get_name_window(),
         get_child_settings_window(),
+        get_waiting_task_window(),
+
+
         on_start=get_full_info_for_dialog
     )
 
@@ -56,7 +59,6 @@ async def main():
 
     dp.include_routers(
         start.router,
-
     )
 
     # include aiogram_dialogs

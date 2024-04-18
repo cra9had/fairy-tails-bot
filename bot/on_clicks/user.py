@@ -11,7 +11,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from bot.db.orm import create_tale
 from bot.states.user import MainWindow
 
-
 async def to_profile(*args):
     dialog_manager: DialogManager = args[2]
     await dialog_manager.start(state=Profile.my_profile, mode=StartMode.RESET_STACK)
@@ -85,7 +84,6 @@ async def check_user_setted(
 async def set_child_activities(
         callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ):
-    # HERE SOME LOGIC TO SET CHILD ACTUAL ACTIVITY TO DATABASE
     dialog_manager.dialog_data["activities"] = button.text.text
     await callback.answer("Увлечения установлены")
 
@@ -93,7 +91,6 @@ async def set_child_activities(
 async def set_child_gender(
         callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ):
-    # HERE SOME LOGIC TO SET CHILD ACTUAL GENDER TO DATABASE
     dialog_manager.dialog_data["gender"] = button.text.text
     await callback.answer("Пол установлен")
 
@@ -101,6 +98,5 @@ async def set_child_gender(
 async def set_child_age(
         callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ):
-    # HERE SOME LOGIC TO SET CHILD ACTUAL AGE TO DATABASE
     dialog_manager.dialog_data["age"] = button.widget_id
     await callback.answer("Возраст установлен")

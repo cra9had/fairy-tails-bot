@@ -7,6 +7,7 @@ class MainWindow(StatesGroup):
     activities = State()
     name = State()
     all_child_settings = State()
+    wait_task = State()
 
     tail = State()
     channel_subscription = State()

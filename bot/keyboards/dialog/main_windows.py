@@ -10,7 +10,9 @@ from aiogram_dialog.window import Window
 
 from bot.states.user import MainWindow
 
-from bot.getters.user import get_setted_child_settings
+from bot.db.orm import  save_child_settings_to_db
+
+from bot.getters.user import get_setted_child_settings, get_state_to_wait
 
 from bot.handlers.child_name_handler import child_name_handler
 
@@ -23,8 +25,7 @@ from bot.on_clicks.user import (
     set_child_activities,
 )
 
-from bot.texts import GENDER_TEXT, AGE_TEXT, ACTIVITIES_TEXT, NAME_TEXT, CHILD_SETTINGS_TEXT
-
+from bot.texts import GENDER_TEXT, AGE_TEXT, ACTIVITIES_TEXT, NAME_TEXT, CHILD_SETTINGS_TEXT, WAIT_GENERATION_TEXT
 
 def get_gender_window():
     window = Window(
@@ -87,10 +88,26 @@ def get_name_window():
 def get_child_settings_window():
     window = Window(
         Format(CHILD_SETTINGS_TEXT),
-        Button(Const('Да все верно!'), id='correct'),
+        Next(Const('Да все верно!'), id='correct', on_click=save_child_settings_to_db),
         SwitchTo(Const('Изменить данные'), id='to_gender', state=MainWindow.gender),
         getter=get_setted_child_settings,
         state=MainWindow.all_child_settings,
+    )
+
+    return window
+
+
+def get_waiting_task_window():
+    """
+    This window does not have any buttons. It uses a getter argument to switch state to MainWindow.wait_task inside this
+    get_state_to_wait function. It`s really useful: we don`t create an additional functionality in previous Window.
+    In previous window we have save_child_settings_to_db but it`s not a good idea to switch state to
+    MainWindow.wait_task inside this function(it`s just illogical)
+    """
+    window = Window(
+        Const(WAIT_GENERATION_TEXT),
+        state=MainWindow.wait_task,
+        getter=get_state_to_wait,  # just a trick to change state to waiting
     )
 
     return window

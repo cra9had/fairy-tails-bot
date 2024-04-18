@@ -1,3 +1,4 @@
+from aiogram_dialog import DialogManager
 from sqlalchemy import select, ScalarResult
 from sqlalchemy.ext.asyncio import AsyncSession
 from bot.db.models import Tale
@@ -16,3 +17,8 @@ async def get_tale(session: AsyncSession, tale_id: int):
         select(Tale).where(Tale.id == tale_id)
     )
     return tale_query.scalar_one_or_none()
+
+
+async def save_child_settings_to_db(session: AsyncSession, *args):
+    dialog_manager: DialogManager = args[1]
+    # logic to save all settings to db
