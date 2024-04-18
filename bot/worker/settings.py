@@ -1,8 +1,8 @@
 import os
 
 from arq.connections import RedisSettings
-from dotenv import  load_dotenv
-from bot.worker.functions import sample_background_task, shutdown, startup
+from dotenv import load_dotenv
+from bot.worker.functions import send_tail_to_user_task, shutdown, startup
 
 load_dotenv(dotenv_path='.env')
 
@@ -11,7 +11,7 @@ REDIS_PORT = int(os.getenv('REDIS_PORT'))
 
 
 class WorkerSettings:
-    functions = [sample_background_task]
+    functions = [send_tail_to_user_task]
     redis_settings = RedisSettings(host=REDIS_HOST, port=REDIS_PORT)
     on_startup = startup
     on_shutdown = shutdown

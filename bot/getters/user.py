@@ -1,7 +1,9 @@
 from pprint import pprint
 from typing import Optional
-from aiogram import html
+from aiogram import html, Bot
 from aiogram.types import Message, CallbackQuery
+
+from arq import ArqRedis
 
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Button
@@ -51,9 +53,10 @@ async def get_setted_child_settings(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def create_task_to_wait(dialog_manager: DialogManager, **kwargs):
-    user_id = dialog_manager.event.from_user.id
-    bot = dialog_manager.event.bot
+async def create_task_to_wait(arq_pool: ArqRedis, dialog_manager: DialogManager, **kwargs):
+    user_id: int = dialog_manager.event.from_user.id
+
+    await arq_pool.enqueue_job('send_tail_to_user_task', user_id=user_id)
 
     return {}
 

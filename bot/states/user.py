@@ -9,8 +9,8 @@ class MainWindow(StatesGroup):
     all_child_settings = State()
     wait_task = State()
 
-    tail = State()
     channel_subscription = State()
+    tail = State()
     episode = State()
 
 

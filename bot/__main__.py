@@ -11,8 +11,11 @@ from aiogram_dialog import Dialog, setup_dialogs
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 
+from arq import create_pool
+from arq.connections import ArqRedis, RedisSettings
+
 from bot.db.models import Base
-from bot.handlers import start
+from bot.handlers import get_tail_callback_handler, start
 from bot.getters.user import get_full_info_for_dialog
 
 
@@ -28,6 +31,13 @@ load_dotenv(dotenv_path='.env')
 async def main():
     engine = create_async_engine(os.getenv('DB_URL'), future=True, echo=True)
     db_pool = async_sessionmaker(engine, expire_on_commit=False)
+
+    arq_pool: ArqRedis = await create_pool(
+        RedisSettings(
+            host=os.getenv('REDIS_HOST'),
+            port=int(os.getenv('REDIS_PORT')),
+        )
+    )
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -45,6 +55,7 @@ async def main():
             ),
             key_builder=DefaultKeyBuilder(with_destiny=True)
         ),
+        arq_pool=arq_pool,
     )
 
     dp.callback_query.middleware(CheckUserSubscription())
@@ -70,6 +81,7 @@ async def main():
 
     dp.include_routers(
         start.router,
+        get_tail_callback_handler.router,
     )
 
     # include aiogram_dialogs
