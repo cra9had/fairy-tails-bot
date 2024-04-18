@@ -2,8 +2,11 @@ import os
 import asyncio
 import logging
 
+from redis.asyncio import Redis
+
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
+from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
 from aiogram_dialog import Dialog, setup_dialogs
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
@@ -31,10 +34,18 @@ async def main():
 
     bot = Bot(
         token=os.getenv('BOT_TOKEN'),
-        default=DefaultBotProperties(parse_mode='HTML')
+        default=DefaultBotProperties(parse_mode='HTML'),
     )
 
-    dp = Dispatcher()
+    dp = Dispatcher(
+        storage=RedisStorage(
+            Redis(
+                host=os.getenv('REDIS_HOST'),
+                port=int(os.getenv('REDIS_PORT'))
+            ),
+            key_builder=DefaultKeyBuilder(with_destiny=True)
+        ),
+    )
 
     dp.callback_query.middleware(CheckUserSubscription())
 

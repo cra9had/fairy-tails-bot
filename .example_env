@@ -3,3 +3,5 @@ BOT_TOKEN=123456789:ABCDefGHiJKLmOpRSTQVWxYZ
 ACTIVITIES=["activity_1", "activity_2", "activity_3"]
 OPENAI_API_KEY=
 DB_URL=postgresql+asyncpg://<user>:<password>@<host>:<port>/<db_name>
+REDIS_HOST=localhost
+REDIS_PORT=6379

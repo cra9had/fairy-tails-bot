@@ -12,7 +12,7 @@ from bot.states.user import MainWindow
 
 from bot.db.orm import  save_child_settings_to_db
 
-from bot.getters.user import get_setted_child_settings, get_state_to_wait
+from bot.getters.user import get_setted_child_settings, create_task_to_wait
 
 from bot.handlers.child_name_handler import child_name_handler
 
@@ -107,7 +107,7 @@ def get_waiting_task_window():
     window = Window(
         Const(WAIT_GENERATION_TEXT),
         state=MainWindow.wait_task,
-        getter=get_state_to_wait,  # just a trick to change state to waiting
+        getter=create_task_to_wait,  # just a trick to change state to waiting
     )
 
     return window
