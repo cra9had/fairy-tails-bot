@@ -9,7 +9,7 @@ from aiogram_dialog import DialogManager, StartMode
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.db.orm import create_tale
-from bot.states.user import Tail, Profile, MainWindow
+from bot.states.user import MainWindow
 
 
 async def to_profile(*args):
@@ -88,8 +88,6 @@ async def set_child_activities(
     # HERE SOME LOGIC TO SET CHILD ACTUAL ACTIVITY TO DATABASE
     dialog_manager.dialog_data["activities"] = button.text.text
     await callback.answer("Увлечения установлены")
-    # return user back to menu
-    await dialog_manager.switch_to(Tail.all_child_settings)
 
 
 async def set_child_gender(
@@ -98,8 +96,6 @@ async def set_child_gender(
     # HERE SOME LOGIC TO SET CHILD ACTUAL GENDER TO DATABASE
     dialog_manager.dialog_data["gender"] = button.text.text
     await callback.answer("Пол установлен")
-    # return user back to menu
-    await dialog_manager.switch_to(Tail.all_child_settings)
 
 
 async def set_child_age(
@@ -108,5 +104,3 @@ async def set_child_age(
     # HERE SOME LOGIC TO SET CHILD ACTUAL AGE TO DATABASE
     dialog_manager.dialog_data["age"] = button.widget_id
     await callback.answer("Возраст установлен")
-    # return user back to menu
-    await dialog_manager.switch_to(Tail.all_child_settings)

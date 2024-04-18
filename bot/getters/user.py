@@ -12,8 +12,6 @@ from bot.on_clicks.user import to_child, to_profile, to_start, to_buy_subscripti
 from bot.services.gpt import ChatGPT
 from bot.services.tales_prompts import TaleGenerator
 
-from bot.states.user import Tail
-
 TO_PROFILE_BTN = Button(Const('В профиль'), id='back_to_profile', on_click=to_profile)
 TO_START_BTN = Button(Const("В меню"), id="back_to_start", on_click=to_start)
 TO_CHILD_SETTINGS_BTN = Button(Const('Назад'), id="back_to_start", on_click=to_child)
@@ -22,33 +20,14 @@ TO_BUY_SUB_BTN = Button(Const('Приобрести пакет'), id='buy_sub', 
 
 async def get_full_info_for_dialog(*args, **kwargs):
     dialog_manager: DialogManager = args[1]
-    tails = {
-        1: {
-            'name': 'Сказка о рыбаке и рыбке',
-            'season': 2,
-        },
-        2: {
-            'name': 'О царевиче и сером волке',
-            'season': 1,
-        },
-        3: {
-            'name': 'Иванушка-дурачок',
-            'season': 3,
-        },
-    }  # Load all tails from db
-
-    max_pages = 3  # LOAD FROM DATABASE quantity of all the tails for pagination
-
     user_child_settings = {}  # LOAD USER SETTED SETTING HERE FROM DATABASE!
 
-    current_tail_index = dialog_manager.dialog_data.get('current_tail_index', 1)  # if not changed yet
+    current_tail_index = dialog_manager.dialog_data.get('current_tail_index', 1)
 
-    current_episode_index = dialog_manager.dialog_data.get('current_episode_index', 1)  # if not changed yet
+    current_episode_index = dialog_manager.dialog_data.get('current_episode_index', 1)
 
     # LOAD USER TAILS HERE FROM DATABASE!
     data = {
-        'max_pages': max_pages,
-        'tails': tails,
         'user_child_settings': user_child_settings,
         'current_tail_index': current_tail_index,
         'current_episode_index': current_episode_index,
@@ -65,10 +44,10 @@ async def get_setted_child_settings(dialog_manager: DialogManager, **kwargs):
     age = dialog_manager.dialog_data.get('age')
     activities = dialog_manager.dialog_data.get('activities')
     return {
-        'gender': '' if not gender else f'| {gender}',
-        'name': '' if not name else f'| {name}',
-        'age': '' if not age else f'| {age}',
-        'activities': '' if not activities else f'| {activities}',
+        'gender': gender,
+        'name': name,
+        'age': age,
+        'activities': activities,
     }
 
 

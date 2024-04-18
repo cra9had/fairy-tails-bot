@@ -11,19 +11,10 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 from bot.db.models import Base
 from bot.handlers import start
 from bot.getters.user import get_full_info_for_dialog
-from bot.keyboards.dialog.start_windows import get_main_window, get_more_info_window
-from bot.keyboards.dialog.profile_window import (get_profile_window, get_my_tails_window,
-                                                 get_current_tail_window, get_episode_ended_window,
-                                                 get_my_subscriptions_window)
 
-from bot.keyboards.dialog.buy_subscription import (get_buy_subscription,
-                                                   get_user_dont_have_subsription)
 
-from bot.keyboards.dialog.child_windows import (get_child_settings_window,
-                                                get_gender_window, get_name_window,
-                                                get_age_window, get_child_activities_window)
-
-from bot.keyboards.dialog.tail_window import get_descr_tail_window, get_chapter_window
+from bot.keyboards.dialog.main_windows import get_gender_window, get_age_window, get_child_activities_window, \
+    get_name_window, get_child_settings_window
 
 from bot.middlewares.user.check_user_subscription import CheckUserSubscription
 from bot.middlewares.db import DbSessionMiddleware
@@ -47,31 +38,12 @@ async def main():
 
     dp.callback_query.middleware(CheckUserSubscription())
 
-    start_dialog = Dialog(
-        get_main_window(),
-        get_more_info_window(),
-        on_start=get_full_info_for_dialog
-    )
-
     dialog_tails = Dialog(
-        get_user_dont_have_subsription(),
-        get_child_settings_window(),
         get_gender_window(),
-        get_name_window(),
-        get_current_tail_window(),
         get_age_window(),
         get_child_activities_window(),
-        get_episode_ended_window(),
-        get_descr_tail_window(),
-        get_chapter_window(),
-        on_start=get_full_info_for_dialog
-    )
-
-    dialog_profile = Dialog(
-        get_profile_window(),
-        get_my_tails_window(),
-        get_buy_subscription(),
-        get_my_subscriptions_window(),
+        get_name_window(),
+        get_child_settings_window(),
         on_start=get_full_info_for_dialog
     )
 
@@ -89,8 +61,6 @@ async def main():
 
     # include aiogram_dialogs
     dp.include_routers(
-        start_dialog,
-        dialog_profile,
         dialog_tails
     )
 
