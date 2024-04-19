@@ -22,3 +22,18 @@ async def get_tale(session: AsyncSession, tale_id: int):
 async def save_child_settings_to_db(session: AsyncSession, *args):
     dialog_manager: DialogManager = args[1]
     # logic to save all settings to db
+
+
+async def get_user_have_sub(session: AsyncSession, user_id: int):
+    return False  # FOR TEST!!
+    # logic to check user have subscription
+
+
+async def get_current_episode_index(session: AsyncSession, user_id: int):
+    return 1  # FOR TEST!!
+    # logic to check user`s last episode number
+
+
+async def get_current_tail_index(session: AsyncSession, user_id: int):
+    return 1  # FOR TEST!!
+    # logic to check user`s last tail index (season)

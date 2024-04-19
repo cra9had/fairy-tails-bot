@@ -1,15 +1,21 @@
-from typing import Optional
+import os
+from typing import Optional, Any
 
 from aiogram import Bot
-from aiogram.types import CallbackQuery, User
+from aiogram.types import CallbackQuery, User, ChatMember
+from aiogram.types.chat_member_left import ChatMemberStatus
 from aiogram.types.input_file import URLInputFile
 
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog import DialogManager, StartMode
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from dotenv import load_dotenv
+
 from bot.db.orm import create_tale
 from bot.states.user import MainWindow
+
+load_dotenv('.env')
 
 async def to_profile(*args):
     dialog_manager: DialogManager = args[2]
@@ -62,6 +68,12 @@ async def send_audio_file(
     await bot.send_audio(chat_id=user.id, audio='https://web-skazki.ru/audio-files/luntik.mp3')
 
 
+async def set_selected_plan(callback: CallbackQuery, widget: Any,
+                            dialog_manager: DialogManager, item_id: str):
+    dialog_manager.dialog_data['plan_selected'] = item_id
+    await dialog_manager.next()
+
+
 async def check_user_setted(
         callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ):
@@ -78,7 +90,18 @@ async def check_user_setted(
         return
 
 
-# ----------------------SETTERS----------------------
+async def check_user_subscribed(
+    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
+):
+    member: Optional[ChatMember] = await callback.bot.get_chat_member(
+        chat_id=os.getenv('CHANNEL_ID'),
+        user_id=callback.from_user.id
+    )
+
+    if member.status not in (ChatMemberStatus.LEFT, ChatMemberStatus.KICKED):
+        await dialog_manager.next()
+    else:
+        await callback.answer('Вас нет в канале, проверьте подписку.', show_alert=True)
 
 
 async def set_child_activities(

@@ -7,13 +7,14 @@ class MainWindow(StatesGroup):
     activities = State()
     name = State()
     all_child_settings = State()
-    wait_task = State()
+    wait_tail = State()
 
     channel_subscription = State()
-    tail = State()
+    wait_episode = State()
     episode = State()
 
 
 class Subscription(StatesGroup):
+    discount = State()
     plans = State()
     subscription = State()

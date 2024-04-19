@@ -10,30 +10,32 @@ from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from bot.db.orm import get_current_tail_index, get_current_episode_index
 from bot.on_clicks.user import to_child, to_profile, to_start, to_buy_subscription
 from bot.services.gpt import ChatGPT
 from bot.services.tales_prompts import TaleGenerator
 
-TO_PROFILE_BTN = Button(Const('В профиль'), id='back_to_profile', on_click=to_profile)
-TO_START_BTN = Button(Const("В меню"), id="back_to_start", on_click=to_start)
-TO_CHILD_SETTINGS_BTN = Button(Const('Назад'), id="back_to_start", on_click=to_child)
-TO_BUY_SUB_BTN = Button(Const('Приобрести пакет'), id='buy_sub', on_click=to_buy_subscription)
+
+async def get_plans(**kwargs):
+    plans = [
+        ('X сказок', 200),
+        ('M сказок', 150),
+        ('Z сказок', 100),
+    ]
+
+    return {
+        "plans": plans,
+    }
 
 
 async def get_full_info_for_dialog(*args, **kwargs):
     dialog_manager: DialogManager = args[1]
+
     user_child_settings = {}  # LOAD USER SETTED SETTING HERE FROM DATABASE!
-
-    current_tail_index = dialog_manager.dialog_data.get('current_tail_index', 1)
-
-    current_episode_index = dialog_manager.dialog_data.get('current_episode_index', 1)
 
     # LOAD USER TAILS HERE FROM DATABASE!
     data = {
         'user_child_settings': user_child_settings,
-        'current_tail_index': current_tail_index,
-        'current_episode_index': current_episode_index,
-
     }
 
     # upload all collected settings to dialog
@@ -53,12 +55,20 @@ async def get_setted_child_settings(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def create_task_to_wait(arq_pool: ArqRedis, dialog_manager: DialogManager, **kwargs):
+async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager, **kwargs):
     user_id: int = dialog_manager.event.from_user.id
 
     await arq_pool.enqueue_job('send_tail_to_user_task', user_id=user_id)
 
-    return {}
+    return {} # to don`t catch an exception
+
+
+async def create_task_to_episode(arq_pool: ArqRedis, dialog_manager: DialogManager, **kwargs):
+    user_id: int = dialog_manager.event.from_user.id
+
+    await arq_pool.enqueue_job('send_episode_to_user_task', user_id=user_id)
+
+    return {}  # to don`t catch an exception
 
 
 async def get_fullname(
