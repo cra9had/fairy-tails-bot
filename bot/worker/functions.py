@@ -5,6 +5,7 @@ from aiogram import Bot
 
 from arq.worker import Worker
 
+from bot.db.orm import get_current_episode_index
 from bot.keyboards.inline.tail_keyboard import get_tail_keyboard, get_episode_keyboard
 
 
@@ -24,9 +25,12 @@ async def send_tail_to_user_task(ctx: Worker, user_id: int):
     return f'Sent tail to user {user_id} successfully'
 
 
-async def send_episode_to_user_task(ctx: Worker, user_id: int):
+async def send_episode_to_user_task(ctx: Worker, user_id: int, current_tail_index: int):
     bot: Bot = ctx['bot']
+
     async with bot.session:
+        await bot.send_message(user_id, text=f'Серия номер {current_tail_index}')
+
         await bot.send_audio(
             chat_id=user_id,
             audio='https://web-skazki.ru/audio-files/luntik.mp3',

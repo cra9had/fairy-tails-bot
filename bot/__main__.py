@@ -17,7 +17,8 @@ from arq import create_pool
 from arq.connections import ArqRedis, RedisSettings
 
 from bot.db.models import Base
-from bot.handlers import get_tail_callback_handler, start, get_next_episode_callback_handler
+from bot.handlers import get_tail_callback_handler, start, get_next_episode_callback_handler, loop1_button_handler, \
+    loop4_button_handler
 from bot.getters.user import get_full_info_for_dialog
 
 
@@ -111,6 +112,8 @@ async def main():
         start.router,
         get_tail_callback_handler.router,
         get_next_episode_callback_handler.router,
+        loop1_button_handler.router,
+        loop4_button_handler.router,
     )
 
     # include aiogram_dialogs

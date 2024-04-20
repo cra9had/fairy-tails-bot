@@ -1,7 +1,9 @@
+from datetime import datetime, timezone, timedelta
 from pprint import pprint
 from typing import Optional
 from aiogram import html, Bot
 from aiogram.types import Message, CallbackQuery
+from apscheduler_di import ContextSchedulerDecorator
 
 from arq import ArqRedis
 
@@ -10,8 +12,11 @@ from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.db.orm import get_current_tail_index, get_current_episode_index
+from bot.db.models import LoopEnum
+from bot.db.orm import get_current_tail_index, get_current_episode_index, get_user_loop, change_user_loop
 from bot.on_clicks.user import to_child, to_profile, to_start, to_buy_subscription
+from bot.scheduler.loops import Loop1, Loop3, Loop4
+from bot.scheduler.tasks import base_add_job, loop3_task, loop4_task
 from bot.services.gpt import ChatGPT
 from bot.services.tales_prompts import TaleGenerator
 
@@ -55,18 +60,68 @@ async def get_setted_child_settings(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager, **kwargs):
+async def create_task_to_tail(
+        arq_pool: ArqRedis,
+        dialog_manager: DialogManager,
+        **kwargs
+):
     user_id: int = dialog_manager.event.from_user.id
 
     await arq_pool.enqueue_job('send_tail_to_user_task', user_id=user_id)
 
-    return {} # to don`t catch an exception
+    return {}  # to don`t catch an exception
 
 
-async def create_task_to_episode(arq_pool: ArqRedis, dialog_manager: DialogManager, **kwargs):
+async def create_schedule_loop4(
+    dialog_manager: DialogManager,
+    sched: ContextSchedulerDecorator,
+    **kwargs
+):
     user_id: int = dialog_manager.event.from_user.id
-    await arq_pool.enqueue_job('send_episode_to_user_task', user_id=user_id)
-    
+
+    next_run = datetime.now(timezone.utc) + timedelta(hours=Loop4.task_1.hour)
+
+    base_add_job(
+        sched,
+        loop4_task,
+        next_run,
+        user_id,
+        Loop4.task_1,
+    )
+
+    return {}  # to don`t catch an exception
+
+
+async def create_task_to_episode(
+        arq_pool: ArqRedis,
+        dialog_manager: DialogManager,
+        sched: ContextSchedulerDecorator,
+        session: AsyncSession,
+        **kwargs
+):
+    user_id: int = dialog_manager.event.from_user.id
+
+    session = dialog_manager.middleware_data['session']
+
+    current_tail_index: int = await get_current_tail_index(session, user_id)
+
+    await arq_pool.enqueue_job('send_episode_to_user_task', user_id=user_id, current_tail_index=current_tail_index)
+
+    loop_from_db: LoopEnum = await get_user_loop(session, user_id)
+
+    if loop_from_db is not LoopEnum.subscriber and loop_from_db is LoopEnum.second:
+        await change_user_loop(session, user_id, LoopEnum.third)
+
+        next_run = datetime.now(timezone.utc) + timedelta(hours=Loop3.task_1.hour)
+
+        base_add_job(
+            sched,
+            loop3_task,
+            next_run,
+            user_id,
+            Loop3.task_1,
+        )
+
 
     return {}  # to don`t catch an exception
 
