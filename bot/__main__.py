@@ -2,6 +2,8 @@ import os
 import asyncio
 import logging
 
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler_di import ContextSchedulerDecorator
 from redis.asyncio import Redis
 
 from aiogram import Bot, Dispatcher
@@ -29,6 +31,8 @@ from bot.middlewares.user.check_user_subscription import CheckUserSubscription
 from bot.middlewares.db import DbSessionMiddleware
 from bot.middlewares.user.episode_and_tail_indexes import EpisodeAndTailIndexesMiddleware
 
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
 load_dotenv(dotenv_path='.env')
 
 
@@ -51,6 +55,16 @@ async def main():
         default=DefaultBotProperties(parse_mode='HTML'),
     )
 
+    _scheduler = AsyncIOScheduler()
+    _scheduler.add_jobstore(jobstore=SQLAlchemyJobStore(url=os.getenv('APSCHEDULER_DB_URL')))
+
+    scheduler = ContextSchedulerDecorator(
+        _scheduler
+    )
+    scheduler.ctx.add_instance(bot, declared_class=Bot)
+
+    scheduler.start()
+
     dp = Dispatcher(
         storage=RedisStorage(
             Redis(
@@ -60,6 +74,7 @@ async def main():
             key_builder=DefaultKeyBuilder(with_destiny=True)
         ),
         arq_pool=arq_pool,
+        sched=scheduler,
     )
 
     dialog_tails = Dialog(

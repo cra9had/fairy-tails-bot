@@ -65,8 +65,8 @@ async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager,
 
 async def create_task_to_episode(arq_pool: ArqRedis, dialog_manager: DialogManager, **kwargs):
     user_id: int = dialog_manager.event.from_user.id
-
     await arq_pool.enqueue_job('send_episode_to_user_task', user_id=user_id)
+    
 
     return {}  # to don`t catch an exception
 
