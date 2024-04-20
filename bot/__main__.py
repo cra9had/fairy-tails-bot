@@ -62,6 +62,7 @@ async def main():
         _scheduler
     )
     scheduler.ctx.add_instance(bot, declared_class=Bot)
+    scheduler.ctx.add_instance(scheduler, declared_class=ContextSchedulerDecorator)
 
     scheduler.start()
 

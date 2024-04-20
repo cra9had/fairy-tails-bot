@@ -3,14 +3,14 @@ from typing import Any
 
 from aiogram.types import CallbackQuery
 from aiogram_dialog import Window, DialogManager
-from aiogram_dialog.widgets.kbd import Button, Group, Next, Column, Url, Select
+from aiogram_dialog.widgets.kbd import Button, Next, Column, Url, Select
 from aiogram_dialog.widgets.text import Const, Format
 
 from bot.getters.user import get_plans
 from bot.on_clicks.user import set_selected_plan
 from bot.states.user import Subscription
 
-from bot.texts import DISCOUNT_TEXT
+from bot.texts.window_texts import DISCOUNT_TEXT
 
 
 def get_discount_text_window():
