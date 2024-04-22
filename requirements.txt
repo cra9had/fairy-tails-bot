@@ -3,3 +3,4 @@ aiogram-dialog==2.1.0
 python-dotenv==1.0.1
 SQLAlchemy==2.0.29
 aiosqlite==0.20.0
+openai==1.17.0
