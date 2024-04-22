@@ -1,18 +1,29 @@
-from typing import Optional
+import enum
+from typing import Optional, List
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Text
 from sqlalchemy.orm import declarative_base, relationship, mapped_column, Mapped
 
 from bot.db.base import Base
+
+
+class LoopEnum(enum.Enum):
+    first = "1"
+    second = "2"
+    third = "3"
+    fourth = "4"
+    subscriber = "done"
 
 
 class User(Base):
     __tablename__ = 'users'
     tg_id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[Optional[str]]
-    packages: Mapped["Package"] = relationship(back_populates="user")
-    tales: Mapped["Tale"] = relationship(back_populates="user")
-    subscription: Mapped["Subscription"] = relationship(back_populates="user")
+    packages: Mapped["Package"] = relationship(back_populates="user", lazy='selectin')
+    tales: Mapped[List["Tale"]] = relationship(back_populates="user", lazy='selectin')
+    subscription: Mapped["Subscription"] = relationship(back_populates="user", lazy='selectin')
+
+    loop: Mapped[LoopEnum] = mapped_column(server_default=LoopEnum.first.name)
 
     def __repr__(self):
         return f'{self.tg_id=} {self.tales=}'
@@ -22,7 +33,7 @@ class Subscription(Base):
     __tablename__ = 'subscriptions'
     tg_id: Mapped[int] = mapped_column(ForeignKey("users.tg_id"), primary_key=True)
     till_end: Mapped[int]
-    user: Mapped["user"] = relationship(back_populates="subscription")
+    user: Mapped["User"] = relationship(back_populates="subscription")
 
 
 class Package(Base):
@@ -42,6 +53,10 @@ class Tale(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str]
     seasons: Mapped["Season"] = relationship(back_populates='tale')
+    description_prompt: Mapped[str] = mapped_column(Text)
+
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.tg_id'))
+    user: Mapped["User"] = relationship(back_populates='tales')
 
     def __repr__(self):
         return f'{self.title=} {self.seasons=}'

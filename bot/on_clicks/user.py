@@ -1,14 +1,25 @@
-from typing import Optional
+import os
+from datetime import datetime, timezone, timedelta
+from typing import Optional, Any
 
 from aiogram import Bot
-from aiogram.types import CallbackQuery, User
+from aiogram.types import CallbackQuery, User, ChatMember
+from aiogram.types.chat_member_left import ChatMemberStatus
 from aiogram.types.input_file import URLInputFile
 
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog import DialogManager, StartMode
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.states.user import Tail, Profile, MainWindow
+from dotenv import load_dotenv
 
+from bot.db.models import LoopEnum
+from bot.db.orm import create_tale, get_user_loop, change_user_loop
+from bot.scheduler.loops import Loop2
+from bot.scheduler.tasks import base_add_job, loop2_task
+from bot.states.user import MainWindow
+
+load_dotenv('.env')
 
 async def to_profile(*args):
     dialog_manager: DialogManager = args[2]
@@ -31,24 +42,40 @@ async def to_buy_subscription(*args):
 
 
 async def buy_new_tail(
-    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
+        callback: CallbackQuery, button: Button, dialog_manager: DialogManager, **kwargs
 ):
     user_subscribed: bool = dialog_manager.middleware_data['user_subscribed']
-
     if not user_subscribed:
         await dialog_manager.switch_to(Tail.user_dont_have_subscription)
+
+    tale_plan = dialog_manager.dialog_data.get('tale_plan')
+    tale_title = dialog_manager.dialog_data.get('tale_title')
+    session = dialog_manager.dialog_data.get('session')
+
+    await create_tale(session, tale_title, tale_plan, callback.message.chat.id)
 
     await to_start(None, None, dialog_manager)
     await callback.message.answer('Ваша сказка успешно куплена и находится у вас в профиле!')
     await callback.message.answer_sticker('CAACAgIAAxkBAAEL1JxmC9SQJqwO9gX45wri2B5vw0lVLwAChAADpsrIDDCcD7Wym5gUNAQ')
 
+
+async def go_chapter(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
+    await dialog_manager.switch_to(Tail.curr_chapter)
+
+
 async def send_audio_file(
-    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
+        callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ):
     bot: Bot = dialog_manager.middleware_data['bot']
     user: User = dialog_manager.middleware_data['event_from_user']
 
     await bot.send_audio(chat_id=user.id, audio='https://web-skazki.ru/audio-files/luntik.mp3')
+
+
+async def set_selected_plan(callback: CallbackQuery, widget: Any,
+                            dialog_manager: DialogManager, item_id: str):
+    dialog_manager.dialog_data['plan_selected'] = item_id
+    await dialog_manager.next()
 
 
 async def check_user_setted(
@@ -67,34 +94,40 @@ async def check_user_setted(
         return
 
 
-# ----------------------SETTERS----------------------
+async def check_user_subscribed(
+    callback: CallbackQuery, button: Button, dialog_manager: DialogManager,
+):
+    user_id = callback.from_user.id
+
+
+
+    member: Optional[ChatMember] = await callback.bot.get_chat_member(
+        chat_id=int(os.getenv('CHANNEL_ID')),
+        user_id=user_id
+    )
+
+    if member.status not in (ChatMemberStatus.LEFT, ChatMemberStatus.KICKED):
+        await dialog_manager.next()
+    else:
+        await callback.answer('Вас нет в канале, проверьте подписку.', show_alert=True)
 
 
 async def set_child_activities(
         callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ):
-    # HERE SOME LOGIC TO SET CHILD ACTUAL ACTIVITY TO DATABASE
     dialog_manager.dialog_data["activities"] = button.text.text
     await callback.answer("Увлечения установлены")
-    # return user back to menu
-    await dialog_manager.switch_to(Tail.all_child_settings)
 
 
 async def set_child_gender(
         callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ):
-    # HERE SOME LOGIC TO SET CHILD ACTUAL GENDER TO DATABASE
     dialog_manager.dialog_data["gender"] = button.text.text
     await callback.answer("Пол установлен")
-    # return user back to menu
-    await dialog_manager.switch_to(Tail.all_child_settings)
 
 
 async def set_child_age(
         callback: CallbackQuery, button: Button, dialog_manager: DialogManager
 ):
-    # HERE SOME LOGIC TO SET CHILD ACTUAL AGE TO DATABASE
     dialog_manager.dialog_data["age"] = button.widget_id
     await callback.answer("Возраст установлен")
-    # return user back to menu
-    await dialog_manager.switch_to(Tail.all_child_settings)
