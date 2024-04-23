@@ -2,31 +2,37 @@ import os
 import asyncio
 import logging
 
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler_di import ContextSchedulerDecorator
+from redis.asyncio import Redis
+
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
+from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
 from aiogram_dialog import Dialog, setup_dialogs
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 
+from arq import create_pool
+from arq.connections import ArqRedis, RedisSettings
+
 from bot.db.models import Base
-from bot.handlers import start
+from bot.handlers import get_tail_callback_handler, start, get_next_episode_callback_handler, loop1_button_handler, \
+    loop4_button_handler
 from bot.getters.user import get_full_info_for_dialog
-from bot.keyboards.dialog.start_windows import get_main_window, get_more_info_window
-from bot.keyboards.dialog.profile_window import (get_profile_window, get_my_tails_window,
-                                                 get_current_tail_window, get_episode_ended_window,
-                                                 get_my_subscriptions_window)
 
-from bot.keyboards.dialog.buy_subscription import (get_buy_subscription,
-                                                   get_user_dont_have_subsription)
 
-from bot.keyboards.dialog.child_windows import (get_child_settings_window,
-                                                get_gender_window, get_name_window,
-                                                get_age_window, get_child_activities_window)
-
-from bot.keyboards.dialog.tail_window import get_descr_tail_window, get_chapter_window
+from bot.keyboards.dialog.main_windows import get_gender_window, get_age_window, get_child_activities_window, \
+    get_name_window, get_child_settings_window, get_waiting_tail_window, get_channel_subscription_window, \
+    get_waiting_episode_window
+from bot.keyboards.dialog.subscription_windows import get_discount_text_window, get_subscription_plans_window, \
+    get_buy_subscription_window
 
 from bot.middlewares.user.check_user_subscription import CheckUserSubscription
 from bot.middlewares.db import DbSessionMiddleware
+from bot.middlewares.user.episode_and_tail_indexes import EpisodeAndTailIndexesMiddleware
+
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 load_dotenv(dotenv_path='.env')
 
@@ -35,63 +41,85 @@ async def main():
     engine = create_async_engine(os.getenv('DB_URL'), future=True, echo=True)
     db_pool = async_sessionmaker(engine, expire_on_commit=False)
 
+    arq_pool: ArqRedis = await create_pool(
+        RedisSettings(
+            host=os.getenv('REDIS_HOST'),
+            port=int(os.getenv('REDIS_PORT')),
+        )
+    )
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
     bot = Bot(
         token=os.getenv('BOT_TOKEN'),
-        default=DefaultBotProperties(parse_mode='HTML')
+        default=DefaultBotProperties(parse_mode='HTML'),
     )
 
-    dp = Dispatcher()
+    _scheduler = AsyncIOScheduler()
+    _scheduler.add_jobstore(jobstore=SQLAlchemyJobStore(url=os.getenv('APSCHEDULER_DB_URL')))
 
-    dp.callback_query.middleware(CheckUserSubscription())
+    scheduler = ContextSchedulerDecorator(
+        _scheduler
+    )
+    scheduler.ctx.add_instance(bot, declared_class=Bot)
+    scheduler.ctx.add_instance(scheduler, declared_class=ContextSchedulerDecorator)
 
-    start_dialog = Dialog(
-        get_main_window(),
-        get_more_info_window(),
-        on_start=get_full_info_for_dialog
+    scheduler.start()
+
+    dp = Dispatcher(
+        storage=RedisStorage(
+            Redis(
+                host=os.getenv('REDIS_HOST'),
+                port=int(os.getenv('REDIS_PORT'))
+            ),
+            key_builder=DefaultKeyBuilder(with_destiny=True)
+        ),
+        arq_pool=arq_pool,
+        sched=scheduler,
     )
 
     dialog_tails = Dialog(
-        get_user_dont_have_subsription(),
-        get_child_settings_window(),
         get_gender_window(),
-        get_name_window(),
-        get_current_tail_window(),
         get_age_window(),
         get_child_activities_window(),
-        get_episode_ended_window(),
-        get_descr_tail_window(),
-        get_chapter_window(),
+        get_name_window(),
+        get_child_settings_window(),
+        get_waiting_tail_window(),
+        get_channel_subscription_window(),
+        get_waiting_episode_window(),
+
         on_start=get_full_info_for_dialog
     )
 
-    dialog_profile = Dialog(
-        get_profile_window(),
-        get_my_tails_window(),
-        get_buy_subscription(),
-        get_my_subscriptions_window(),
-        on_start=get_full_info_for_dialog
+    dialog_subscription = Dialog(
+        get_discount_text_window(),
+        get_subscription_plans_window(),
+        get_buy_subscription_window(),
     )
 
     setup_dialogs(dp)
 
-    # include main routers 
+    # include main routers
     # MAIN ROUTER REGISTRATION MUST BE UPPER THAN AIOGRAM_DIALOG routers!
     dp.message.middleware(DbSessionMiddleware(db_pool))
     dp.callback_query.middleware(DbSessionMiddleware(db_pool))
+    dp.callback_query.middleware(CheckUserSubscription())
+
+    dialog_tails.callback_query.middleware(EpisodeAndTailIndexesMiddleware())
 
     dp.include_routers(
         start.router,
-
+        get_tail_callback_handler.router,
+        get_next_episode_callback_handler.router,
+        loop1_button_handler.router,
+        loop4_button_handler.router,
     )
 
     # include aiogram_dialogs
     dp.include_routers(
-        start_dialog,
-        dialog_profile,
-        dialog_tails
+        dialog_tails,
+        dialog_subscription,
     )
 
     await dp.start_polling(
