@@ -3,6 +3,10 @@ BOT_TOKEN=123456789:ABCDefGHiJKLmOpRSTQVWxYZ
 ACTIVITIES=["activity_1", "activity_2", "activity_3"]
 OPENAI_API_KEY=
 DB_URL=postgresql+asyncpg://<user>:<password>@<host>:<port>/<db_name>
+
+; apscheduler doesnt support async connection TO STORE JOBS, but it`s still possible to use async functions in tasks
+; (just use sqlalchemy instance)
+APSCHEDULER_DB_URL=postgresql://<user>:<password>@<host>:<port>/<db_name>
 REDIS_HOST=localhost
 REDIS_PORT=6379
-CHANNEL_ID=-1002142509785
+CHANNEL_ID=-1002142809785
