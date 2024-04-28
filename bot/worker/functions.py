@@ -2,6 +2,7 @@ import logging
 import os
 
 from aiogram import Bot
+from aiogram.enums import ParseMode
 from aiogram_dialog import DialogManager
 
 from arq.worker import Worker
@@ -19,6 +20,7 @@ async def send_tail_plan_to_user_task(ctx: Worker, user_id: int, context: dict |
     async with bot.session:
         await bot.send_message(
             text=tale_plan,
+            parse_mode=ParseMode.HTML,
             chat_id=user_id,
             reply_markup=get_tail_keyboard()
         )
