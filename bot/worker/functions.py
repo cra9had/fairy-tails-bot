@@ -2,6 +2,7 @@ import logging
 import os
 
 from aiogram import Bot
+from aiogram_dialog import DialogManager
 
 from arq.worker import Worker
 
@@ -11,30 +12,26 @@ from bot.services.tales_prompts import TaleGenerator
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 
-async def send_tail_plan_to_user_task(ctx: Worker, user_id: int, context: dict):
-    tg = TaleGenerator()
+async def send_tail_plan_to_user_task(ctx: Worker, user_id: int, context: dict | None = None):
     bot: Bot = ctx['bot']
-    sex, name, age, interests = context["gender"], context["name"], context["age"], context["activities"]
-    tale_plan = await tg.generate_tale_plan(sex=sex, name=name, age=age, interests=interests)
+    tale_plan = context.get('tale_plan', 'NoPlanForTale')
+    print(tale_plan)
     async with bot.session:
         await bot.send_message(
             text=tale_plan,
             chat_id=user_id,
-            # reply_markup=get_tail_keyboard()
+            reply_markup=get_tail_keyboard()
         )
 
-    return f'Sent tail to user {user_id} successfully'
+    return f'Sent plan to user {user_id} successfully'
 
 
 async def send_tail_to_user_task(ctx: Worker, user_id: int, context: dict):
     bot: Bot = ctx['bot']
-    print(context)
-
+    tale = context.get('tale', 'NoTale')
     async with bot.session:
-        await bot.send_photo(
-            chat_id=user_id,
-            photo='https://www.storyberries.com/wp-content/uploads/2019/01/Bedtime-stories-Snow-White-and-the-Seven-Dwarves-fairy-tales-for-kids.jpg',
-            caption='Содержание сезона',
+        await bot.send_message(
+            chat_id=tale,
             reply_markup=get_tail_keyboard()
         )
 

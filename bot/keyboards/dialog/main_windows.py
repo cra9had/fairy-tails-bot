@@ -8,11 +8,12 @@ from aiogram_dialog.widgets.kbd import Button, Column, Group, Next, Row, SwitchT
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.window import Window
 
+from bot.services.tales_prompts import TaleGenerator
 from bot.states.user import MainWindow
 
 from bot.db.orm import  save_child_settings_to_db
 
-from bot.getters.user import get_setted_child_settings, create_task_to_tail, create_task_to_episode
+from bot.getters.user import get_setted_child_settings, create_task_to_plan, create_task_to_episode
 
 from bot.handlers.child_name_handler import child_name_handler
 
@@ -104,7 +105,7 @@ def get_waiting_tail_window():
     window = Window(
         Const(WAIT_GENERATION_TEXT),
         state=MainWindow.wait_tail,
-        getter=create_task_to_tail,  # just a trick to change state to waiting
+        getter=create_task_to_plan,  # just a trick to change state to waiting
     )
 
     return window

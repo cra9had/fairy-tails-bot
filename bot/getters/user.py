@@ -55,11 +55,34 @@ async def get_setted_child_settings(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager, **kwargs):
-    user_id: int = dialog_manager.event.from_user.id
+async def create_task_to_plan(arq_pool: ArqRedis, dialog_manager: DialogManager, event_update, **kwargs):
+    await event_update.callback_query.message.answer("⏳Минутку.. Создаем содержание сезона и готовим развивающие сюжеты...")
+    await event_update.callback_query.message.delete()
+    await event_update.callback_query.answer()
+
     data = await get_setted_child_settings(dialog_manager, **kwargs)
-    await arq_pool.enqueue_job('send_tail_plan_to_user_task', user_id=user_id, context={**data})
-   # await arq_pool.enqueue_job('send_tail_to_user_task', user_id=user_id, context={"jopa": "jopa"})
+    sex, name, age, interests = data["gender"], data["name"], data["age"], data["activities"]
+
+    tg = TaleGenerator()
+    tale_plan = await tg.generate_tale_plan(sex=sex, name=name, age=age, interests=interests)
+
+    dialog_manager.dialog_data.update(tale_plan=tale_plan)
+    user_id: int = dialog_manager.event.from_user.id
+
+    await arq_pool.enqueue_job('send_tail_plan_to_user_task', user_id=user_id, context={"tale_plan": tale_plan})
+
+    return {}  # to don`t catch an exception
+
+
+async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager, **kwargs):
+    dialog_manager.dialog_data.get('tale_plan')
+    tale_season = dialog_manager.dialog_data.get('tale_season', 1)
+    tg = TaleGenerator()
+    tale = await tg.generate_first_chapter(tale_season)
+    dialog_manager.dialog_data.update(tale_season=tale_season + 1)
+    user_id: int = dialog_manager.event.from_user.id
+
+    await arq_pool.enqueue_job('send_tail_to_user_task', user_id=user_id, context={"tale": tale})
 
     return {}  # to don`t catch an exception
 
