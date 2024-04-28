@@ -57,10 +57,11 @@ async def get_setted_child_settings(dialog_manager: DialogManager, **kwargs):
 
 async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager, **kwargs):
     user_id: int = dialog_manager.event.from_user.id
+    data = await get_setted_child_settings(dialog_manager, **kwargs)
+    await arq_pool.enqueue_job('send_tail_plan_to_user_task', user_id=user_id, context={**data})
+   # await arq_pool.enqueue_job('send_tail_to_user_task', user_id=user_id, context={"jopa": "jopa"})
 
-    await arq_pool.enqueue_job('send_tail_to_user_task', user_id=user_id)
-
-    return {} # to don`t catch an exception
+    return {}  # to don`t catch an exception
 
 
 async def create_task_to_episode(arq_pool: ArqRedis, dialog_manager: DialogManager, **kwargs):

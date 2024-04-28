@@ -15,7 +15,7 @@ def get_tail_keyboard() -> InlineKeyboardMarkup:
 def get_episode_keyboard() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text='Следующая сказка', callback_data='get_next_episode')]
+            [InlineKeyboardButton(text='Следующая cерия', callback_data='get_next_episode')]
             # handling in bot/handlers/get_next_episode_callback_handler
         ]
     )

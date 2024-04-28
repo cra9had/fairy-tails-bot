@@ -62,8 +62,6 @@ def get_child_activities_window():
 
     window = Window(
         Const(ACTIVITIES_TEXT),
-        # parse all activities.
-        # idx - a number of the button (starts from 0)
         *[
             Next(Const(i), id=str(idx), on_click=set_child_activities)
             for idx, i in enumerate(activities)
@@ -115,7 +113,7 @@ def get_waiting_tail_window():
 def get_channel_subscription_window():
     window = Window(
         Const(CHANNEL_SUB_TEXT),
-        Button(Const('Подписка есть'), id='check_sub_btn', on_click=check_user_subscribed),
+        Button(Const('Есть подписка'), id='check_sub_btn', on_click=check_user_subscribed),
         state=MainWindow.channel_subscription
     )
 

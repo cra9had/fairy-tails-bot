@@ -14,6 +14,6 @@ class CheckUserSubscription(BaseMiddleware):
     ) -> Any:
         is_user_have_sub: bool = await get_user_have_sub(data['session'], event.from_user.id)
 
-        data['user_subscribed'] = is_user_have_sub
-
+        #data['user_subscribed'] = is_user_have_sub
+        data['user_subscribed'] = True
         return await handler(event, data)
