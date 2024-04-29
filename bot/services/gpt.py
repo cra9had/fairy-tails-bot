@@ -1,6 +1,8 @@
 import asyncio
 import json
 import os
+from pprint import pprint
+
 import openai
 from openai import AsyncOpenAI
 from typing import List, Optional, Dict, Literal
@@ -34,10 +36,12 @@ class ChatGPT:
 
     async def get_text_by_prompt(self, prompt: str, use_history: bool = False,
                                  provided_history: list[str] | None = None) -> str:
+
         request = {
             "role": "user",
             "content": prompt
         }
+
         if use_history:
             chat_completion = await self.client.chat.completions.create(
                 messages=[*self.discussion,
@@ -52,12 +56,22 @@ class ChatGPT:
                      "content": chat_completion.choices[0].message.content
                  }]
             )
+
         elif provided_history:
             chat_completion = await self.client.chat.completions.create(
                 messages=[*provided_history,
                           request],
                 model=self.model,
             )
+
+            self.discussion.extend(
+                [request,
+                 {
+                     "role": "assistant",
+                     "content": chat_completion.choices[0].message.content
+                 }]
+            )
+
         else:
             chat_completion = await self.client.chat.completions.create(
                 messages=[request],

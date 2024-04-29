@@ -1,3 +1,4 @@
+from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
@@ -12,12 +13,14 @@ def get_tail_keyboard() -> InlineKeyboardMarkup:
     return keyboard
 
 
-def get_episode_keyboard() -> InlineKeyboardMarkup:
+def get_episode_keyboard() -> InlineKeyboardMarkup | None:
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text='Следующая cерия', callback_data='get_next_episode')]
             # handling in bot/handlers/get_next_episode_callback_handler
         ]
     )
-
     return keyboard
+
+
+

@@ -97,7 +97,6 @@ async def check_user_subscribed(
         chat_id=os.getenv('CHANNEL_ID'),
         user_id=callback.from_user.id
     )
-
     if member.status not in (ChatMemberStatus.LEFT, ChatMemberStatus.KICKED):
         await dialog_manager.next()
     else:
