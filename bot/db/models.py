@@ -1,7 +1,7 @@
 import enum
 from typing import Optional, List
 
-from sqlalchemy import ForeignKey, Text
+from sqlalchemy import ForeignKey, Text, BigInteger
 from sqlalchemy.orm import declarative_base, relationship, mapped_column, Mapped
 
 from bot.db.base import Base
@@ -18,7 +18,7 @@ class LoopEnum(enum.Enum):
 
 class User(Base):
     __tablename__ = 'users'
-    tg_id: Mapped[int] = mapped_column(primary_key=True)
+    tg_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     chain_type: Mapped[Optional[ChainType]]
     chain_phase: Mapped[Optional[ChainStage]]
     username: Mapped[Optional[str]]

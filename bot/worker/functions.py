@@ -10,7 +10,7 @@ from arq.worker import Worker
 from bot.db.orm import get_current_episode_index
 from bot.keyboards.inline.tail_keyboard import get_tail_keyboard, get_episode_keyboard
 from bot.services.tales_prompts import TaleGenerator
-from bot.texts import REACHED_TALE_END
+from bot.texts.window_texts import REACHED_TALE_END
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
