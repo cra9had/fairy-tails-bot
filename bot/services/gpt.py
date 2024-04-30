@@ -36,7 +36,6 @@ class ChatGPT:
 
     async def get_text_by_prompt(self, prompt: str, use_history: bool = False,
                                  provided_history: list[str] | None = None) -> str:
-
         request = {
             "role": "user",
             "content": prompt
@@ -79,3 +78,15 @@ class ChatGPT:
             )
 
         return chat_completion.choices[0].message.content
+
+    async def get_photo_by_prompt(self, prompt: str):
+        response = await self.client.images.generate(
+            model="dall-e-3",
+            prompt=prompt,
+            size="1024x1024",
+            quality="standard",
+            n=1,
+        )
+
+        image_url = response.data[0].url
+        return image_url

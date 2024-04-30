@@ -19,7 +19,11 @@ from bot.scheduler.loops import Loop1, Loop3, Loop4
 from bot.scheduler.tasks import base_add_job, loop3_task, loop4_task
 from bot.services.gpt import ChatGPT
 from bot.services.tales_prompts import TaleGenerator
+from bot.services.text_to_speech import process_translation
 from bot.texts.window_texts import WAIT_GENERATION_TALE, TIP_TEXT, WAIT_GENERATION_PLAN
+
+from aiogram.enums import ContentType
+from aiogram_dialog.api.entities import MediaAttachment, MediaId
 
 
 async def get_plans(**kwargs):
@@ -64,7 +68,6 @@ async def get_setted_child_settings(dialog_manager: DialogManager, **kwargs):
 async def create_task_to_plan(arq_pool: ArqRedis, dialog_manager: DialogManager, event_update, aiogd_stack, bot,
                               **kwargs):
     message = await event_update.callback_query.message.answer(WAIT_GENERATION_PLAN)
-    # await event_update.callback_query.message.delete()
     await event_update.callback_query.answer()
 
     data = await get_setted_child_settings(dialog_manager, **kwargs)
@@ -72,7 +75,8 @@ async def create_task_to_plan(arq_pool: ArqRedis, dialog_manager: DialogManager,
 
     tg = TaleGenerator()
     tale_plan = await tg.generate_tale_plan(sex=sex, name=name, age=age, interests=interests)
-    # tale_plan = 'TALE_PHOTO_THERE'
+    tale_photo_url = await tg.generate_tale_season_photo(season_num=1, season_plan=tale_plan)
+
     dialog_manager.dialog_data.update(tale_plan=tale_plan)
     dialog_manager.dialog_data.update(chat_history=tg.gpt.discussion[:]
                                       )
@@ -80,9 +84,9 @@ async def create_task_to_plan(arq_pool: ArqRedis, dialog_manager: DialogManager,
 
     await message.delete()
     await arq_pool.enqueue_job('send_tail_plan_to_user_task',
-                               user_id=user_id, context={"tale_plan": tale_plan})
+                               user_id=user_id, context={"tale_photo_url": tale_photo_url})
 
-    return {"tale_plan": tale_plan}
+    return {"tale_plan": tale_plan, 'tale_photo_url': tale_photo_url}
 
 
 async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager, event_update, **kwargs):
@@ -97,11 +101,11 @@ async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager,
     tg = TaleGenerator(provided_history=provided_history)
     if tale_episode == 1 and tale_chapter == 1:
         tale = await tg.generate_first_chapter(tale_season)
-        # tale = 'tale_text'
     else:
         tale = await tg.generate_next_chapter()
-        # tale = 'tale_text'
+    tale_voice_url = await process_translation(text=tale)
 
+    tale_voice = MediaAttachment(type=ContentType.AUDIO, url=tale_voice_url)
     finish = False
     tale_chapter += 1
 
@@ -123,9 +127,10 @@ async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager,
     user_id: int = dialog_manager.event.from_user.id
 
     await message.delete()
-    await arq_pool.enqueue_job('send_tail_to_user_task', user_id=user_id, context={"tale": tale, "finish": finish})
+    await arq_pool.enqueue_job('send_tail_to_user_task', user_id=user_id,
+                               context={"tale_voice_url": tale_voice_url, "finish": finish})
 
-    return {"tale_text": tale}
+    return {"tale_voice": tale_voice}
 
 
 async def create_schedule_loop4(

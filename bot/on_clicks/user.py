@@ -21,6 +21,7 @@ from bot.states.user import MainWindow
 
 load_dotenv('.env')
 
+
 async def to_profile(*args):
     dialog_manager: DialogManager = args[2]
     await dialog_manager.start(state=Profile.my_profile, mode=StartMode.RESET_STACK)
@@ -95,11 +96,9 @@ async def check_user_setted(
 
 
 async def check_user_subscribed(
-    callback: CallbackQuery, button: Button, dialog_manager: DialogManager,
+        callback: CallbackQuery, button: Button, dialog_manager: DialogManager,
 ):
     user_id = callback.from_user.id
-
-
 
     member: Optional[ChatMember] = await callback.bot.get_chat_member(
         chat_id=int(os.getenv('CHANNEL_ID')),

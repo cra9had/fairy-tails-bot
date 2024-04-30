@@ -7,7 +7,7 @@ from aiogram_dialog.widgets.text import Format, Const
 from aiogram_dialog.widgets.kbd import Button, Column, Group, Next, Row, SwitchTo
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.window import Window
-
+from aiogram_dialog.widgets.media import DynamicMedia
 from bot.services.tales_prompts import TaleGenerator
 from bot.states.user import MainWindow
 
@@ -130,7 +130,7 @@ def get_waiting_episode_window():
     MainWindow.wait_episode inside this function(it`s just illogical)
         """
     window = Window(
-        Format("{tale_text}"),
+        DynamicMedia("tale_voice"),
         state=MainWindow.wait_episode,
         getter=create_task_to_tail,
     )

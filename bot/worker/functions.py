@@ -3,26 +3,23 @@ import os
 
 from aiogram import Bot
 from aiogram.enums import ParseMode
-from aiogram_dialog import DialogManager
-
+from aiogram.types import URLInputFile
 from arq.worker import Worker
 
-from bot.db.orm import get_current_episode_index
 from bot.keyboards.inline.tail_keyboard import get_tail_keyboard, get_episode_keyboard
-from bot.services.tales_prompts import TaleGenerator
-from bot.texts.window_texts import REACHED_TALE_END
+from bot.texts.window_texts import REACHED_TALE_END, NEXT_EPISODE_READY_TO_BE_LOADED
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 
 async def send_tail_plan_to_user_task(ctx: Worker, user_id: int, context: dict | None = None):
     bot: Bot = ctx['bot']
-    tale_plan = context.get('tale_plan', 'NoPlanForTale')
+    tale_photo = URLInputFile(context.get('tale_photo_url'))
     async with bot.session:
-        await bot.send_message(
-            text=tale_plan,
-            parse_mode=ParseMode.HTML,
+        await bot.send_photo(
             chat_id=user_id,
+            photo=tale_photo,
+            caption='Чтобы получить вашу сказку - нажмите на кнопку!',
             reply_markup=get_tail_keyboard()
         )
 
@@ -31,14 +28,13 @@ async def send_tail_plan_to_user_task(ctx: Worker, user_id: int, context: dict |
 
 async def send_tail_to_user_task(ctx: Worker, user_id: int, context: dict):
     bot: Bot = ctx['bot']
-    tale = context.get('tale', 'NoTale')
     finish = context.get('finish')
     if finish:
         markup = None
-        msg_text = tale
+        msg_text = REACHED_TALE_END
     else:
         markup = get_episode_keyboard()
-        msg_text = tale
+        msg_text = NEXT_EPISODE_READY_TO_BE_LOADED
     async with bot.session:
         await bot.send_message(
             text=msg_text,

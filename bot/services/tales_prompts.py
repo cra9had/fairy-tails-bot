@@ -3,7 +3,8 @@ import json
 from typing import Literal
 
 from bot.services.gpt import ChatGPT
-from bot.services.gpt_templates import SEASON_PLAN, GET_TALE_NAME_PROMPT, FIRST_CHAPTER_PROMPT, NEXT_CHAPTER_PROMPT
+from bot.services.gpt_templates import SEASON_PLAN, GET_TALE_NAME_PROMPT, FIRST_CHAPTER_PROMPT, NEXT_CHAPTER_PROMPT, \
+    SEASON_PLAN_PICTURE
 
 
 class TaleGetters:
@@ -14,6 +15,11 @@ class TaleGetters:
     @staticmethod
     def get_first_chapter(season_number: int):
         return FIRST_CHAPTER_PROMPT.format(season_number=season_number)
+
+    @staticmethod
+    def get_season_photo(season_number: int, tale_plan: str):
+        return SEASON_PLAN_PICTURE.format(season_number=season_number,
+                                          tale_plan=tale_plan)
 
     @staticmethod
     def get_next_chapter():
@@ -45,3 +51,7 @@ class TaleGenerator:
         new_chapter = await self.gpt.get_text_by_prompt(TaleGetters.get_next_chapter(),
                                                         use_history=True, provided_history=provided_history)
         return new_chapter
+
+    async def generate_tale_season_photo(self, season_num: int, season_plan: str):
+        photo_url = await self.gpt.get_photo_by_prompt(TaleGetters.get_season_photo(season_num, season_plan))
+        return photo_url

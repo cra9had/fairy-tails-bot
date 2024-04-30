@@ -48,7 +48,7 @@ async def main():
     )
 
     async with engine.begin() as conn:
-       await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(Base.metadata.create_all)
 
     bot = Bot(
         token=os.getenv('BOT_TOKEN'),
