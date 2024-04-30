@@ -21,6 +21,7 @@ async def get_tale(session: AsyncSession, tale_id: int):
 
 async def save_child_settings_to_db(session: AsyncSession, *args):
     dialog_manager: DialogManager = args[1]
+    print(args)
     # logic to save all settings to db
 
 
@@ -56,3 +57,7 @@ async def change_user_loop(session: AsyncSession, user_id: int, new_loop: LoopEn
 
     await session.execute(query)
     await session.commit()
+
+
+async def update_tale_data():
+    pass

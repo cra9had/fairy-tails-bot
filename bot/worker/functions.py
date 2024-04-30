@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 
@@ -35,6 +36,9 @@ async def send_tail_to_user_task(ctx: Worker, user_id: int, context: dict):
     else:
         markup = get_episode_keyboard()
         msg_text = NEXT_EPISODE_READY_TO_BE_LOADED
+
+    await asyncio.sleep(3)
+
     async with bot.session:
         await bot.send_message(
             text=msg_text,

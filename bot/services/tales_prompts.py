@@ -4,7 +4,7 @@ from typing import Literal
 
 from bot.services.gpt import ChatGPT
 from bot.services.gpt_templates import SEASON_PLAN, GET_TALE_NAME_PROMPT, FIRST_CHAPTER_PROMPT, NEXT_CHAPTER_PROMPT, \
-    SEASON_PLAN_PICTURE
+    SEASON_PLAN_PICTURE, SEASON_PLAN_CONTINUE
 
 
 class TaleGetters:
@@ -13,13 +13,16 @@ class TaleGetters:
         return SEASON_PLAN.format(sex=sex, name=name, age=age, interests=interests)
 
     @staticmethod
+    def get_season_plan_continue():
+        return SEASON_PLAN_CONTINUE
+
+    @staticmethod
     def get_first_chapter(season_number: int):
         return FIRST_CHAPTER_PROMPT.format(season_number=season_number)
 
     @staticmethod
-    def get_season_photo(season_number: int, tale_plan: str):
-        return SEASON_PLAN_PICTURE.format(season_number=season_number,
-                                          tale_plan=tale_plan)
+    def get_season_photo(tale_plan: str):
+        return SEASON_PLAN_PICTURE.format(tale_plan=tale_plan)
 
     @staticmethod
     def get_next_chapter():
@@ -38,6 +41,10 @@ class TaleGenerator:
         return await self.gpt.get_text_by_prompt(TaleGetters.get_season_plan(name, sex, age, interests),
                                                  use_history=True)
 
+    async def generate_tale_plan_continue(self, provided_history: list | None = None):
+        return await self.gpt.get_text_by_prompt(TaleGetters.get_season_plan_continue(),
+                                                 provided_history=provided_history)
+
     async def generate_tale_title(self):
         title = await self.gpt.get_text_by_prompt(GET_TALE_NAME_PROMPT)
         return title
@@ -52,6 +59,6 @@ class TaleGenerator:
                                                         use_history=True, provided_history=provided_history)
         return new_chapter
 
-    async def generate_tale_season_photo(self, season_num: int, season_plan: str):
-        photo_url = await self.gpt.get_photo_by_prompt(TaleGetters.get_season_photo(season_num, season_plan))
+    async def generate_tale_season_photo(self, season_plan: str):
+        photo_url = await self.gpt.get_photo_by_prompt(TaleGetters.get_season_photo(season_plan))
         return photo_url

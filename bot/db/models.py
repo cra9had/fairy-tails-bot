@@ -1,4 +1,6 @@
 import enum
+import json
+from dataclasses import dataclass
 from typing import Optional, List
 
 from sqlalchemy import ForeignKey, Text, BigInteger
@@ -14,6 +16,51 @@ class LoopEnum(enum.Enum):
     fourth = "4"
     subscriber = "done"
 
+
+@dataclass
+class TaleParams:
+    season: int = 1
+    episode: int = 1
+    chapter: int = 1
+
+    def iterate(self):
+        """
+        Increment the chapter, and manage transitions between chapters, episodes, and seasons.
+        Throws StopIteration when the end of the defined sequence is reached.
+        """
+        self.chapter += 1
+
+        if self.season == 2 and self.episode == 2 and self.chapter == 5 + 1:
+            raise StopIteration("End of the series reached")
+
+        elif self.episode == 2 and self.chapter == 5 + 1:
+            self.season += 1
+            self.episode = 1
+            self.chapter = 1
+
+        elif self.chapter == 5 + 1:
+            self.episode += 1
+            self.chapter = 1
+
+    def is_season_begin(self):
+        """
+        Check if the current state is the beginning of a season.
+        """
+        return self.chapter == 1 and self.episode == 1
+
+    def to_json(self):
+        """
+        Convert the TaleParams instance to a JSON string.
+        """
+        return json.dumps(self.__dict__)
+
+    @staticmethod
+    def from_json(json_str):
+        """
+        Create a TaleParams instance from a JSON string.
+        """
+        params = json.loads(json_str)
+        return TaleParams(**params)
 
 class User(Base):
     __tablename__ = 'users'

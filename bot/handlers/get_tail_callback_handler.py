@@ -20,16 +20,10 @@ async def get_tail_callback_handler(callback: CallbackQuery, dialog_manager: Dia
     print("GET_TAIL:", dialog_manager.dialog_data)
 
     chat_history = dialog_manager.dialog_data.get('chat_history')
-    tale_season = dialog_manager.dialog_data.get('tale_season', 1)
-    tale_chapter = dialog_manager.dialog_data.get('tale_chapter', 1)
-    tale_episode = dialog_manager.dialog_data.get('tale_episode', 1)
+    tale_params = dialog_manager.dialog_data.get('tale_params')
 
     await dialog_manager.start(MainWindow.channel_subscription, mode=StartMode.RESET_STACK,
-                               data={"chat_history": chat_history, "tale_season": tale_season,
-                                     "tale_chapter": tale_chapter, "tale_episode": tale_episode})
-
-    dialog_manager.dialog_data.update({"chat_history": chat_history, "tale_season": tale_season,
-                                     "tale_chapter": tale_chapter, "tale_episode": tale_episode})
+                               data={"tale_params": tale_params, "chat_history": chat_history})
 
     user_id = callback.from_user.id
 
