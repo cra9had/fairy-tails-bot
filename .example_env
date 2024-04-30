@@ -6,4 +6,4 @@ DB_URL=postgresql+asyncpg://<user>:<password>@<host>:<port>/<db_name>
 APSCHEDULER_DB_URL=postgresql://<user>:<password>@<host>:<port>/<db_name>
 REDIS_HOST=localhost
 REDIS_PORT=6379
-CHANNEL_ID=-1002142509785
+CHANNEL_ID=-1002142809785
