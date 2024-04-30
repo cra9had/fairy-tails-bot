@@ -3,21 +3,22 @@ from typing import Any
 
 from aiogram.types import CallbackQuery
 from aiogram_dialog import Window, DialogManager
-from aiogram_dialog.widgets.kbd import Button, Group, Next, Column, Url, Select
+from aiogram_dialog.widgets.kbd import Button, Next, Column, Url, Select
 from aiogram_dialog.widgets.text import Const, Format
 
-from bot.getters.user import get_plans
+from bot.getters.user import get_plans, create_schedule_loop4
 from bot.on_clicks.user import set_selected_plan
 from bot.states.user import Subscription
 
-from bot.texts import DISCOUNT_TEXT
+from bot.texts.window_texts import DISCOUNT_TEXT
 
 
 def get_discount_text_window():
     window = Window(
         Const(DISCOUNT_TEXT),
         Next(Const('Тарифы по Акции')),
-        state=Subscription.discount
+        state=Subscription.discount,
+        getter=create_schedule_loop4
     )
 
     return window
@@ -27,12 +28,6 @@ def get_subscription_plans_window():
 
     window = Window(
         Const('Выберите пакет'),
-
-        # Column(
-        #     Next(Const("X сказок - 200р"), id='x_tails'),
-        #     Next(Const("M сказок"), id='m_tails'),
-        #     Next(Const("N сказок"), id='n_tails'),
-        # ),
         Column(
             Select(
                 Format('{item[0]} - {item[1]}р'),

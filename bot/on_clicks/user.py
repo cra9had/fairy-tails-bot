@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timezone, timedelta
 from typing import Optional, Any
 
 from aiogram import Bot
@@ -12,7 +13,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from dotenv import load_dotenv
 
-from bot.db.orm import create_tale
+from bot.db.models import LoopEnum
+from bot.db.orm import create_tale, get_user_loop, change_user_loop
+from bot.scheduler.loops import Loop2
+from bot.scheduler.tasks import base_add_job, loop2_task
 from bot.states.user import MainWindow
 
 load_dotenv('.env')
@@ -91,11 +95,15 @@ async def check_user_setted(
 
 
 async def check_user_subscribed(
-    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
+    callback: CallbackQuery, button: Button, dialog_manager: DialogManager,
 ):
+    user_id = callback.from_user.id
+
+
+
     member: Optional[ChatMember] = await callback.bot.get_chat_member(
-        chat_id=os.getenv('CHANNEL_ID'),
-        user_id=callback.from_user.id
+        chat_id=int(os.getenv('CHANNEL_ID')),
+        user_id=user_id
     )
     if member.status not in (ChatMemberStatus.LEFT, ChatMemberStatus.KICKED):
         await dialog_manager.next()

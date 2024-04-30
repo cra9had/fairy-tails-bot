@@ -11,7 +11,7 @@ from aiogram_dialog.window import Window
 from bot.services.tales_prompts import TaleGenerator
 from bot.states.user import MainWindow
 
-from bot.db.orm import  save_child_settings_to_db
+from bot.db.orm import save_child_settings_to_db
 
 from bot.getters.user import get_setted_child_settings, create_task_to_plan, create_task_to_episode, create_task_to_tail
 
@@ -24,7 +24,7 @@ from bot.on_clicks.user import (
     set_child_activities, check_user_subscribed,
 )
 
-from bot.texts import *
+from bot.texts.window_texts import *
 
 
 def get_gender_window():

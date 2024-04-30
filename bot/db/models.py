@@ -1,18 +1,32 @@
+import enum
 from typing import Optional, List
 
 from sqlalchemy import ForeignKey, Text
 from sqlalchemy.orm import declarative_base, relationship, mapped_column, Mapped
 
 from bot.db.base import Base
+from bot.db.chains import ChainType, ChainStage
+
+
+class LoopEnum(enum.Enum):
+    first = "1"
+    second = "2"
+    third = "3"
+    fourth = "4"
+    subscriber = "done"
 
 
 class User(Base):
     __tablename__ = 'users'
     tg_id: Mapped[int] = mapped_column(primary_key=True)
+    chain_type: Mapped[Optional[ChainType]]
+    chain_phase: Mapped[Optional[ChainStage]]
     username: Mapped[Optional[str]]
-    packages: Mapped["Package"] = relationship(back_populates="user")
-    tales: Mapped[List["Tale"]] = relationship(back_populates="user")
-    subscription: Mapped["Subscription"] = relationship(back_populates="user")
+    packages: Mapped["Package"] = relationship(back_populates="user", lazy='selectin')
+    tales: Mapped[List["Tale"]] = relationship(back_populates="user", lazy='selectin')
+    subscription: Mapped["Subscription"] = relationship(back_populates="user", lazy='selectin')
+
+    loop: Mapped[LoopEnum] = mapped_column(server_default=LoopEnum.first.name)
 
     def __repr__(self):
         return f'{self.tg_id=} {self.tales=}'
