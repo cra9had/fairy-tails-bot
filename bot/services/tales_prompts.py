@@ -1,4 +1,5 @@
 import asyncio
+import json
 from typing import Literal
 
 from bot.services.gpt import ChatGPT
@@ -20,8 +21,11 @@ class TaleGetters:
 
 
 class TaleGenerator:
-    def __init__(self):
+    def __init__(self, provided_history: list[str] | None = None):
         self.gpt = ChatGPT()
+
+        if provided_history:
+            self.gpt.discussion = provided_history
 
     async def generate_tale_plan(self, name: str, sex: Literal['Мальчик', 'Девочка'], age: int,
                                  interests: str):
@@ -32,12 +36,12 @@ class TaleGenerator:
         title = await self.gpt.get_text_by_prompt(GET_TALE_NAME_PROMPT)
         return title
 
-    async def generate_first_chapter(self, season_num: int):
+    async def generate_first_chapter(self, season_num: int, provided_history: list | None = None):
         first_chapter = await self.gpt.get_text_by_prompt(TaleGetters.get_first_chapter(season_num),
-                                                          use_history=True)
+                                                          use_history=True, provided_history=provided_history)
         return first_chapter
 
-    async def generate_next_chapter(self):
+    async def generate_next_chapter(self, provided_history: list | None = None):
         new_chapter = await self.gpt.get_text_by_prompt(TaleGetters.get_next_chapter(),
-                                                        use_history=True)
+                                                        use_history=True, provided_history=provided_history)
         return new_chapter

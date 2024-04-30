@@ -8,11 +8,12 @@ from aiogram_dialog.widgets.kbd import Button, Column, Group, Next, Row, SwitchT
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.window import Window
 
+from bot.services.tales_prompts import TaleGenerator
 from bot.states.user import MainWindow
 
 from bot.db.orm import save_child_settings_to_db
 
-from bot.getters.user import get_setted_child_settings, create_task_to_tail, create_task_to_episode
+from bot.getters.user import get_setted_child_settings, create_task_to_plan, create_task_to_episode, create_task_to_tail
 
 from bot.handlers.child_name_handler import child_name_handler
 
@@ -62,8 +63,6 @@ def get_child_activities_window():
 
     window = Window(
         Const(ACTIVITIES_TEXT),
-        # parse all activities.
-        # idx - a number of the button (starts from 0)
         *[
             Next(Const(i), id=str(idx), on_click=set_child_activities)
             for idx, i in enumerate(activities)
@@ -76,7 +75,7 @@ def get_child_activities_window():
 
 def get_name_window():
     window = Window(
-        Const(NAME_TEXT),
+        Format(NAME_TEXT),
         MessageInput(child_name_handler, content_types=[ContentType.TEXT]),
         state=MainWindow.name,
     )
@@ -104,9 +103,9 @@ def get_waiting_tail_window():
     MainWindow.wait_tail inside this function(it`s just illogical)
     """
     window = Window(
-        Const(WAIT_GENERATION_TEXT),
+        Format("{tale_plan}"),
         state=MainWindow.wait_tail,
-        getter=create_task_to_tail,  # just a trick to change state to waiting
+        getter=create_task_to_plan,  # just a trick to change state to waiting
     )
 
     return window
@@ -115,7 +114,7 @@ def get_waiting_tail_window():
 def get_channel_subscription_window():
     window = Window(
         Const(CHANNEL_SUB_TEXT),
-        Button(Const('Подписка есть'), id='check_sub_btn', on_click=check_user_subscribed),
+        Button(Const('Есть подписка'), id='check_sub_btn', on_click=check_user_subscribed),
         state=MainWindow.channel_subscription
     )
 
@@ -131,9 +130,9 @@ def get_waiting_episode_window():
     MainWindow.wait_episode inside this function(it`s just illogical)
         """
     window = Window(
-        Const(TIP_TEXT),
+        Format("{tale_text}"),
         state=MainWindow.wait_episode,
-        getter=create_task_to_episode,
+        getter=create_task_to_tail,
     )
 
     return window

@@ -19,6 +19,7 @@ from bot.scheduler.loops import Loop1, Loop3, Loop4
 from bot.scheduler.tasks import base_add_job, loop3_task, loop4_task
 from bot.services.gpt import ChatGPT
 from bot.services.tales_prompts import TaleGenerator
+from bot.texts.window_texts import WAIT_GENERATION_TALE, TIP_TEXT, WAIT_GENERATION_PLAN
 
 
 async def get_plans(**kwargs):
@@ -60,22 +61,77 @@ async def get_setted_child_settings(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def create_task_to_tail(
-        arq_pool: ArqRedis,
-        dialog_manager: DialogManager,
-        **kwargs
-):
+async def create_task_to_plan(arq_pool: ArqRedis, dialog_manager: DialogManager, event_update, aiogd_stack, bot,
+                              **kwargs):
+    message = await event_update.callback_query.message.answer(WAIT_GENERATION_PLAN)
+    # await event_update.callback_query.message.delete()
+    await event_update.callback_query.answer()
+
+    data = await get_setted_child_settings(dialog_manager, **kwargs)
+    sex, name, age, interests = data["gender"], data["name"], data["age"], data["activities"]
+
+    tg = TaleGenerator()
+    tale_plan = await tg.generate_tale_plan(sex=sex, name=name, age=age, interests=interests)
+    # tale_plan = 'TALE_PHOTO_THERE'
+    dialog_manager.dialog_data.update(tale_plan=tale_plan)
+    dialog_manager.dialog_data.update(chat_history=tg.gpt.discussion[:]
+                                      )
     user_id: int = dialog_manager.event.from_user.id
 
-    await arq_pool.enqueue_job('send_tail_to_user_task', user_id=user_id)
+    await message.delete()
+    await arq_pool.enqueue_job('send_tail_plan_to_user_task',
+                               user_id=user_id, context={"tale_plan": tale_plan})
 
-    return {}  # to don`t catch an exception
+    return {"tale_plan": tale_plan}
+
+
+async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager, event_update, **kwargs):
+    message = await event_update.callback_query.message.answer(TIP_TEXT)
+    await event_update.callback_query.message.edit_reply_markup(reply_markup=None)
+    data = dialog_manager.start_data
+    provided_history = data.get('chat_history')
+    tale_season = data.get('tale_season', 1)
+    tale_episode = data.get('tale_episode', 1)
+    tale_chapter = data.get('tale_chapter', 1)
+
+    tg = TaleGenerator(provided_history=provided_history)
+    if tale_episode == 1 and tale_chapter == 1:
+        tale = await tg.generate_first_chapter(tale_season)
+        # tale = 'tale_text'
+    else:
+        tale = await tg.generate_next_chapter()
+        # tale = 'tale_text'
+
+    finish = False
+    tale_chapter += 1
+
+    if tale_season == 2 and tale_episode == 2 and tale_chapter == 5 + 1:
+        finish = True
+
+    elif tale_episode == 2 and tale_chapter == 5 + 1:
+        tale_season = 2
+        tale_episode = 1
+        tale_chapter = 1
+
+    elif tale_chapter == 5 + 1:
+        tale_episode += 1
+        tale_chapter = 1
+
+    dialog_manager.dialog_data.update(
+        {"tale_season": tale_season, "tale_episode": tale_episode, "tale_chapter": tale_chapter})
+    dialog_manager.dialog_data.update(chat_history=tg.gpt.discussion)
+    user_id: int = dialog_manager.event.from_user.id
+
+    await message.delete()
+    await arq_pool.enqueue_job('send_tail_to_user_task', user_id=user_id, context={"tale": tale, "finish": finish})
+
+    return {"tale_text": tale}
 
 
 async def create_schedule_loop4(
-    dialog_manager: DialogManager,
-    sched: ContextSchedulerDecorator,
-    **kwargs
+        dialog_manager: DialogManager,
+        sched: ContextSchedulerDecorator,
+        **kwargs
 ):
     user_id: int = dialog_manager.event.from_user.id
 
@@ -121,7 +177,6 @@ async def create_task_to_episode(
             user_id,
             Loop3.task_1,
         )
-
 
     return {}  # to don`t catch an exception
 

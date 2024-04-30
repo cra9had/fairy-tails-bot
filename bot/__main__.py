@@ -21,7 +21,6 @@ from bot.handlers import get_tail_callback_handler, start, get_next_episode_call
     loop4_button_handler
 from bot.getters.user import get_full_info_for_dialog
 
-
 from bot.keyboards.dialog.main_windows import get_gender_window, get_age_window, get_child_activities_window, \
     get_name_window, get_child_settings_window, get_waiting_tail_window, get_channel_subscription_window, \
     get_waiting_episode_window
@@ -49,7 +48,7 @@ async def main():
     )
 
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+       await conn.run_sync(Base.metadata.create_all)
 
     bot = Bot(
         token=os.getenv('BOT_TOKEN'),

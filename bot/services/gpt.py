@@ -1,6 +1,8 @@
 import asyncio
 import json
 import os
+from pprint import pprint
+
 import openai
 from openai import AsyncOpenAI
 from typing import List, Optional, Dict, Literal
@@ -26,30 +28,38 @@ class ChatGPT:
         self.discussion: List[Optional[Dict]] = []
         self.model = "gpt-4-turbo"
 
-    def dump(self):
-        return json.dumps(
-            {
-                "messages": self.messages
-            }
-        )
-
-    def loads(self, dump):
-        self.messages = json.loads(dump)
-
     async def generate_first_series(self):
         return await self.get_text_by_prompt(FIRST_CHAPTER_PROMPT, use_history=True)
 
     async def generate_next_series(self):
         return await self.get_text_by_prompt(NEXT_CHAPTER_PROMPT, use_history=True)
 
-    async def get_text_by_prompt(self, prompt: str, use_history: bool = False) -> str:
+    async def get_text_by_prompt(self, prompt: str, use_history: bool = False,
+                                 provided_history: list[str] | None = None) -> str:
+
         request = {
             "role": "user",
             "content": prompt
         }
+
         if use_history:
             chat_completion = await self.client.chat.completions.create(
                 messages=[*self.discussion,
+                          request],
+                model=self.model,
+            )
+
+            self.discussion.extend(
+                [request,
+                 {
+                     "role": "assistant",
+                     "content": chat_completion.choices[0].message.content
+                 }]
+            )
+
+        elif provided_history:
+            chat_completion = await self.client.chat.completions.create(
+                messages=[*provided_history,
                           request],
                 model=self.model,
             )
