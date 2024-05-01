@@ -1,6 +1,5 @@
 import asyncio
 from datetime import datetime, timezone, timedelta
-from pprint import pprint
 from typing import Optional
 from aiogram import html, Bot
 from aiogram.types import Message, CallbackQuery
@@ -74,12 +73,13 @@ async def create_task_to_plan(arq_pool: ArqRedis, dialog_manager: DialogManager,
 
     data = await get_setted_child_settings(dialog_manager, **kwargs)
     start_data = dialog_manager.start_data
-    print("start_data:", start_data)
     sex, name, age, interests = data["gender"], data["name"], data["age"], data["activities"]
 
     if start_data:
         chat_history = start_data.get('chat_history')
         tale_params = start_data.get('tale_params')
+        if tale_params:
+            dialog_manager.dialog_data.update(tale_params=tale_params)
     else:
         chat_history = tale_params = None
 
@@ -93,8 +93,6 @@ async def create_task_to_plan(arq_pool: ArqRedis, dialog_manager: DialogManager,
 
     dialog_manager.dialog_data.update(tale_plan=tale_plan)
     dialog_manager.dialog_data.update(chat_history=tg.gpt.discussion[:])
-    if tale_params:
-        dialog_manager.dialog_data.update(tale_params=tale_params)
 
     user_id: int = dialog_manager.event.from_user.id
 
@@ -118,7 +116,9 @@ async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager,
         tale = await tg.generate_first_chapter(tale_params.season)
     else:
         tale = await tg.generate_next_chapter()
-    tale_voice = await process_translation(text=tale)
+
+    user_id: int = dialog_manager.event.from_user.id
+    tale_voice = await process_translation(text=tale, user_id=user_id)
 
     finish = False
     try:
@@ -127,7 +127,6 @@ async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager,
         finish = True
 
     dialog_manager.dialog_data.update({"tale_params": tale_params.to_json(), "chat_history": tg.gpt.discussion[:]})
-    user_id: int = dialog_manager.event.from_user.id
     await message.delete()
     await arq_pool.enqueue_job('send_tail_to_user_task', user_id=user_id,
                                context={"finish": finish})
