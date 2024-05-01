@@ -22,8 +22,8 @@ SYNTHESIZE_URL = 'https://apihost.ru/api/v1/synthesize'
 PROCESS_URL = 'https://apihost.ru/api/v1/process'
 
 
-async def send_to_translation(text: str):
-    logging.info(f'Sending text to translate: {text}')
+async def send_to_translation(text: str, user_id: str):
+    logging.info(f'Sending user_id {user_id} text to translate: {text}')
     data = {
         'data': [{
             'lang': 'ru-RU',
@@ -33,7 +33,7 @@ async def send_to_translation(text: str):
             'rate': '0.8',
             'pitch': '1.0',
             'type': 'mp3',
-            'pause': '0.4'
+            'pause': '0'
         }]
     }
 
@@ -41,18 +41,21 @@ async def send_to_translation(text: str):
 
     response = requests.post(SYNTHESIZE_URL, headers=HEADERS, data=json_data)
     if response.status_code == 200:
+        process = response.json().get('process')
+        if not process:
+            raise RuntimeError(f"No process key in response json {response.json()}")
         return response.json()['process']
     else:
         logging.error(f'Bad Translation-API Response. Check TRANSLATION_API_KEY or API balance')
         raise RuntimeError("Bad response in send_to_translation: check TRANSLATION_API_KEY in env")
 
 
-async def get_link_translation(process_id: str):
+async def get_link_translation(process_id: str, user_id: str):
     data = {'process': process_id}
     json_data = json.dumps(data)
     request_counter = 0
     while True:
-        logging.info(f'Voice-Translation request №{request_counter}:')
+        logging.info(f'Voice-Translation request №{request_counter} of user_id {user_id}:')
 
         if request_counter > 10:
             raise RuntimeError(
@@ -72,8 +75,8 @@ async def get_link_translation(process_id: str):
 async def process_translation(text: str, user_id: str):
     try:
         logging.info(f'Processing user {user_id} text to translation')
-        order_id = await send_to_translation(text)
-        voice_msg_url = await get_link_translation(order_id)
+        order_id = await send_to_translation(text, user_id)
+        voice_msg_url = await get_link_translation(order_id, user_id)
         return MediaAttachment(type=ContentType.AUDIO, url=voice_msg_url)
     except RuntimeError as e:
         logging.error(f'Something\'s wrong with voice translation: {e}')
