@@ -22,18 +22,18 @@ SYNTHESIZE_URL = 'https://apihost.ru/api/v1/synthesize'
 PROCESS_URL = 'https://apihost.ru/api/v1/process'
 
 
-async def send_to_translation(text: str, user_id: str):
+async def send_to_translation(text: str, user_id: int):
     logging.info(f'Sending user_id {user_id} text to translate: {text}')
     data = {
         'data': [{
             'lang': 'ru-RU',
-            'speaker': '1011',
-            'emotion': 'neutral',
+            'speaker': '5010',
+            'emotion': 'good',
             'text': text,
-            'rate': '0.8',
+            'rate': '0.9',
             'pitch': '1.0',
             'type': 'mp3',
-            'pause': '0'
+            'pause': '5'
         }]
     }
 
@@ -50,7 +50,7 @@ async def send_to_translation(text: str, user_id: str):
         raise RuntimeError("Bad response in send_to_translation: check TRANSLATION_API_KEY in env")
 
 
-async def get_link_translation(process_id: str, user_id: str):
+async def get_link_translation(process_id: str, user_id: int):
     data = {'process': process_id}
     json_data = json.dumps(data)
     request_counter = 0
@@ -72,7 +72,7 @@ async def get_link_translation(process_id: str, user_id: str):
     return response.json()['message']
 
 
-async def process_translation(text: str, user_id: str):
+async def process_translation(text: str, user_id: int):
     try:
         logging.info(f'Processing user {user_id} text to translation')
         order_id = await send_to_translation(text, user_id)
