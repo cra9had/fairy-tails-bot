@@ -1,0 +1,20 @@
+services:
+  web:
+    build: .
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - path: ./.env
+
+  redis:
+    image: "redis:alpine"
+
+  db:
+    image: "postgres:15.3"
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=foo
