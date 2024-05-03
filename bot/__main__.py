@@ -33,6 +33,8 @@ from bot.middlewares.user.episode_and_tail_indexes import EpisodeAndTailIndexesM
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
+from bot.payments.generate_payment_link import GeneratePaymentLinkProdamus
+
 load_dotenv(dotenv_path='.env')
 
 
@@ -66,6 +68,12 @@ async def main():
 
     scheduler.start()
 
+    payment_fabric = GeneratePaymentLinkProdamus(
+        prodamus_payment_url=os.getenv('PRODAMUS_PAYMENT_URL'),
+        prodamus_api_key=os.getenv('PRODAMUS_API_KEY'),
+        product_name=os.getenv('PRODAMUS_PRODUCT_NAME')
+    )
+
     dp = Dispatcher(
         storage=RedisStorage(
             Redis(
@@ -76,6 +84,7 @@ async def main():
         ),
         arq_pool=arq_pool,
         sched=scheduler,
+        payment_fabric=payment_fabric,
     )
 
     dialog_tails = Dialog(

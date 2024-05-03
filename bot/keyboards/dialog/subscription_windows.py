@@ -6,7 +6,7 @@ from aiogram_dialog import Window, DialogManager
 from aiogram_dialog.widgets.kbd import Button, Next, Column, Url, Select
 from aiogram_dialog.widgets.text import Const, Format
 
-from bot.getters.user import get_plans, create_schedule_loop4
+from bot.getters.user import get_plans, create_schedule_loop4, get_payment_url
 from bot.on_clicks.user import set_selected_plan
 from bot.states.user import Subscription
 
@@ -48,10 +48,11 @@ def get_buy_subscription_window():
     window = Window(
         Format('К оплате <b>{dialog_data[plan_selected]}р</b>'),
         Column(
-            Url(Const("Перейти к оплате"), Const('https://qiwi.com/')),
+            Url(Const("Перейти к оплате"), Format('{payment_url}')),
             Button(Const("Я оплатил"), id='m_tails'),
         ),
         parse_mode='HTML',
+        getter=get_payment_url,
         state=Subscription.subscription
     )
 

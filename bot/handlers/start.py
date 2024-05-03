@@ -14,7 +14,7 @@ from bot.db.orm import get_user_loop
 from bot.scheduler.loops import Loop1
 
 from bot.db.models import User, LoopEnum
-from bot.states.user import MainWindow
+from bot.states.user import MainWindow, Subscription
 from bot.scheduler.tasks import loop1_task, base_add_job
 
 router = Router()
@@ -25,6 +25,9 @@ async def start_cmd(message: Message, dialog_manager: DialogManager, sched: Cont
     """This handler starts the first task in apscheduler, this task will execute the second one, second will execute
     the third, so when it executes the final third time - this job just will not create next one and the job will
     be deleted from db because this task have 'date' trigger, so it triggers only one time"""
+
+    await dialog_manager.start(Subscription.plans, mode=StartMode.RESET_STACK)
+    return
 
     # WHEN USER USE THE BOT THE FIRST TIME - REGISTER HIM TO DB IN THIS PLACE, otherwise loop_from_db will
     # catch an error (so... user just have to be already registered in db at this moment)

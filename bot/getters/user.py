@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from bot.db.models import LoopEnum, TaleParams
 from bot.db.orm import get_current_tail_index, get_current_episode_index, get_user_loop, change_user_loop
 from bot.on_clicks.user import to_child, to_profile, to_start, to_buy_subscription
+from bot.payments.generate_payment_link import GeneratePaymentLinkFabric
 from bot.scheduler.loops import Loop1, Loop3, Loop4
 from bot.scheduler.tasks import base_add_job, loop3_task, loop4_task
 from bot.services.gpt import ChatGPT
@@ -35,6 +36,21 @@ async def get_plans(**kwargs):
 
     return {
         "plans": plans,
+    }
+
+
+async def get_payment_url(dialog_manager: DialogManager, **kwargs):
+    payment_fabric: GeneratePaymentLinkFabric = dialog_manager.middleware_data['payment_fabric']
+
+    plan = dialog_manager.dialog_data['plan_selected']
+
+    payment_url = await payment_fabric.generate_payment_link(
+        price=plan,
+        order_id=dialog_manager.event.from_user.id
+    )
+
+    return {
+        'payment_url': payment_url,
     }
 
 
