@@ -18,7 +18,7 @@ from arq.connections import ArqRedis, RedisSettings
 
 from bot.db.models import Base
 from bot.handlers import get_tail_callback_handler, start, get_next_episode_callback_handler, loop1_button_handler, \
-    loop4_button_handler
+    loop4_button_handler, generate_tail_from_subscription_window
 from bot.getters.user import get_full_info_for_dialog
 
 from bot.keyboards.dialog.main_windows import get_gender_window, get_age_window, get_child_activities_window, \
@@ -122,6 +122,8 @@ async def main():
         get_next_episode_callback_handler.router,
         loop1_button_handler.router,
         loop4_button_handler.router,
+        generate_tail_from_subscription_window.router,
+
     )
 
     # include aiogram_dialogs
