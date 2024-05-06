@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime, timezone, timedelta
+from pprint import pprint
 from typing import Optional
 from aiogram import html, Bot
 from aiogram.types import Message, CallbackQuery
@@ -10,13 +11,16 @@ from arq import ArqRedis
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const
+from aiogram_dialog import DialogManager, StartMode, ShowMode
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.db.models import LoopEnum, TaleParams
-from bot.db.orm import get_current_tail_index, get_current_episode_index, get_user_loop, change_user_loop
+from bot.db.orm import get_current_tail_index, get_current_episode_index, get_user_loop, change_user_loop, get_user, \
+    change_user_chapters
 from bot.on_clicks.user import to_child, to_profile, to_start, to_buy_subscription
 from bot.payments.generate_payment_link import GeneratePaymentLinkFabric
 from bot.scheduler.loops import Loop1, Loop3, Loop4
+from bot.states.user import Subscription
 from bot.scheduler.tasks import base_add_job, loop3_task, loop4_task
 from bot.services.gpt import ChatGPT
 from bot.services.tales_prompts import TaleGenerator
@@ -69,6 +73,7 @@ async def get_full_info_for_dialog(*args, **kwargs):
 
 
 async def get_setted_child_settings(dialog_manager: DialogManager, **kwargs):
+
     gender = dialog_manager.dialog_data.get('gender')
     name = dialog_manager.dialog_data.get('name')
     age = dialog_manager.dialog_data.get('age')
@@ -101,12 +106,14 @@ async def create_task_to_plan(arq_pool: ArqRedis, dialog_manager: DialogManager,
 
     tg = TaleGenerator()
     if not tale_params:
-        tale_plan = await tg.generate_tale_plan(sex=sex, name=name, age=age, interests=interests)
+        #tale_plan = await tg.generate_tale_plan(sex=sex, name=name, age=age, interests=interests)
+        tale_plan = '123'
     else:
-        tale_plan = await tg.generate_tale_plan_continue(provided_history=chat_history)
+        #tale_plan = await tg.generate_tale_plan_continue(provided_history=chat_history)
+        tale_plan = '123'
 
-    tale_photo_url = await tg.generate_tale_season_photo(season_plan=tale_plan)
-
+    #tale_photo_url = await tg.generate_tale_season_photo(season_plan=tale_plan)
+    tale_photo_url = "https://ir-3.ozone.ru/s3/multimedia-1-z/wc1000/7016992727.jpg"
     dialog_manager.dialog_data.update(tale_plan=tale_plan)
     dialog_manager.dialog_data.update(chat_history=tg.gpt.discussion[:])
 
@@ -119,7 +126,16 @@ async def create_task_to_plan(arq_pool: ArqRedis, dialog_manager: DialogManager,
     return {"tale_plan": tale_plan, 'tale_photo_url': tale_photo_url}
 
 
-async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager, event_update, **kwargs):
+async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager, event_update, session, **kwargs):
+    user_id: int = dialog_manager.event.from_user.id
+
+    user = await get_user(session, user_id)
+
+    if not user.chapters_available:
+        await event_update.callback_query.message.answer("У вас закончились сказки. Но вы можете взять ещё:")
+        await dialog_manager.start(Subscription.plans, mode=StartMode.RESET_STACK)
+        return {}
+
     message = await event_update.callback_query.message.answer(TIP_TEXT)
     await event_update.callback_query.message.delete()
 
@@ -129,11 +145,13 @@ async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager,
 
     tg = TaleGenerator(provided_history=provided_history)
     if tale_params.is_season_begin():
-        tale = await tg.generate_first_chapter(tale_params.season)
+        #tale = await tg.generate_first_chapter(tale_params.season)
+        tale = 'tale_chap'
     else:
-        tale = await tg.generate_next_chapter()
+        #tale = await tg.generate_next_chapter()
+        tale = 'tale_chap'
 
-    user_id: int = dialog_manager.event.from_user.id
+    await change_user_chapters(session, user_id, -1)
     tale_voice = await process_translation(text=tale, user_id=user_id)
 
     finish = False

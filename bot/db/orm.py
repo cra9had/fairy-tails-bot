@@ -31,7 +31,7 @@ async def add_user(session: AsyncSession, tg_id: int, username: str | None = Non
         await session.rollback()
 
 
-async def add_user_chapters(session: AsyncSession, tg_id: int, chap_quantity: int):
+async def change_user_chapters(session: AsyncSession, tg_id: int, chap_quantity: int | None = 1):
     """
     Add chapters for a user with the given tg_id.
 
@@ -46,7 +46,7 @@ async def add_user_chapters(session: AsyncSession, tg_id: int, chap_quantity: in
         user.chapters_available += chap_quantity
         await session.commit()
     else:
-        logger.error(f"Cannot add chapters for User {tg_id}: not found")
+        logger.error(f"Cannot change chapters for User {tg_id}: not found")
         await session.rollback()
 
 
@@ -100,6 +100,13 @@ async def get_user_loop(session: AsyncSession, user_id: int):
     loop_from_db: LoopEnum = res.scalar().loop
 
     return loop_from_db
+
+
+async def get_user(session: AsyncSession, user_id: int):
+    res = await session.execute(select(User).filter_by(tg_id=user_id))
+
+    user_from_db = res.scalar_one_or_none()
+    return user_from_db
 
 
 async def change_user_loop(session: AsyncSession, user_id: int, new_loop: LoopEnum):

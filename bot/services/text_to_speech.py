@@ -75,8 +75,9 @@ async def get_link_translation(process_id: str, user_id: int):
 async def process_translation(text: str, user_id: int):
     try:
         logging.info(f'Processing user {user_id} text to translation')
-        order_id = await send_to_translation(text, user_id)
-        voice_msg_url = await get_link_translation(order_id, user_id)
+        #order_id = await send_to_translation(text, user_id)
+        #voice_msg_url = await get_link_translation(order_id, user_id)
+        voice_msg_url = 'http://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg'
         return MediaAttachment(type=ContentType.AUDIO, url=voice_msg_url)
     except RuntimeError as e:
         logging.error(f'Something\'s wrong with voice translation: {e}')

@@ -13,6 +13,7 @@ class MainWindow(StatesGroup):
     wait_episode = State()
     episode = State()
 
+    bad_balance = State()
 
 class Subscription(StatesGroup):
     discount = State()
