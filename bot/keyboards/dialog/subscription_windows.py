@@ -49,7 +49,6 @@ def get_buy_subscription_window():
         Format('К оплате <b>{dialog_data[plan_selected]}р</b>'),
         Column(
             Url(Const("Перейти к оплате"), Format('{payment_url}')),
-            Button(Const("Я оплатил"), id='m_tails'),
         ),
         parse_mode='HTML',
         getter=get_payment_url,
