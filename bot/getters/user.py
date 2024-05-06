@@ -29,9 +29,9 @@ from aiogram_dialog.api.entities import MediaAttachment, MediaId
 
 async def get_plans(**kwargs):
     plans = [
-        ('X сказок', 200),
-        ('M сказок', 150),
-        ('Z сказок', 100),
+        ('Минимальный', 690),
+        ('Стандартный', 1090),
+        ('Максимальный', 1190),
     ]
 
     return {
