@@ -29,17 +29,15 @@ async def start_cmd(message: Message, dialog_manager: DialogManager, sched: Cont
     user_id = message.from_user.id
     username = message.from_user.username
 
-    await add_user(session, user_id, username)
+    user = await add_user(session, user_id, username)
 
-    await dialog_manager.start(Subscription.plans, mode=StartMode.RESET_STACK)
-    return
-
-    # WHEN USER USE THE BOT THE FIRST TIME - REGISTER HIM TO DB IN THIS PLACE, otherwise loop_from_db will
-    # catch an error (so... user just have to be already registered in db at this moment)
+    if not user.chapters_available:
+        await message.answer("У вас закончились сказки. Но вы можете взять ещё:")
+        await dialog_manager.start(Subscription.plans, mode=StartMode.RESET_STACK)
+        return
 
     loop_from_db: LoopEnum = await get_user_loop(session, user_id)
 
-    # if user clicks on this button first time -> create task
     if loop_from_db is LoopEnum.first:
         next_run = datetime.now(timezone.utc) + timedelta(hours=Loop1.task_1.hour)
 
