@@ -9,6 +9,8 @@ import aiohttp
 from starlette.datastructures import FormData
 
 from app.verification.prodamus_verification import ProdamusVerification
+from bot.db.db_pool import db_pool
+from bot.db.orm import add_user_chapters
 
 app = FastAPI()
 bot = Bot(token=os.getenv('BOT_TOKEN'))
@@ -30,6 +32,9 @@ async def root(request: Request):
     elif form['payment_status'] != 'success':
         raise HTTPException(status.HTTP_402_PAYMENT_REQUIRED)
 
+    chap_quantity = 5
+    async with db_pool() as session:
+        await add_user_chapters(session, tg_user_id, chap_quantity)
 
     async with bot.session:
         kb = InlineKeyboardMarkup(

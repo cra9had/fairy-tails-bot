@@ -34,14 +34,16 @@ from bot.middlewares.user.episode_and_tail_indexes import EpisodeAndTailIndexesM
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from bot.payments.generate_payment_link import GeneratePaymentLinkProdamus
+from bot.db.db_pool import engine, db_pool
 
 load_dotenv(dotenv_path='.env')
 
 
-async def main():
-    engine = create_async_engine(os.getenv('DB_URL'), future=True, echo=True)
-    db_pool = async_sessionmaker(engine, expire_on_commit=False)
+# engine = create_async_engine(os.getenv('DB_URL'), future=True, echo=True)
+# db_pool = async_sessionmaker(engine, expire_on_commit=False)
 
+
+async def main():
     arq_pool: ArqRedis = await create_pool(
         RedisSettings(
             host=os.getenv('REDIS_HOST'),
