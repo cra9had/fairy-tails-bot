@@ -31,9 +31,6 @@ async def start_cmd(message: Message, dialog_manager: DialogManager, sched: Cont
 
     await add_user(session, user_id, username)
 
-    await dialog_manager.start(Subscription.plans, mode=StartMode.RESET_STACK)
-    return
-
     # WHEN USER USE THE BOT THE FIRST TIME - REGISTER HIM TO DB IN THIS PLACE, otherwise loop_from_db will
     # catch an error (so... user just have to be already registered in db at this moment)
 
