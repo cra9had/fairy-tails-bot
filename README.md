@@ -4,29 +4,27 @@
 
 ### Настройка бота:
 1. Переименовать файл `.example_env` в `.env`
-2. В файле `.env` указать BOT_TOKEN тг-бота и прочие необходимые настройки (по завершении работы - указать, какие) 
-3. Файл `bot_example.service` из каталога `systemd` переименовать и перенести в
-`/etc/systemd/system/`
+2. В файле `.env` заполнить все поля.<br>
+> [!IMPORTANT]
+> *В полях, где нужно указать адрес(host) базы данных - используйте название контейнера, вместо localhost* 
 
 ### Запуск:
-1. `systemctl enable bot_example --now`
+1. `sudo docker compose up -d --build`
 
 ## Для разработчика
 
 ### Логи работы
-1. `systemctl status bot_example.service`
-2. Логи системного журнала за последние N минут: `journalctl -u bot --since "Nm ago"`
+1. `sudo docker compose logs`
 
 ### Перезапуск сервиса
-1. `systemctl daemon-reload`
-2. `systemctl restart bot`
+1. `sudo docker compose restart`
 
 
 ## Краткое описание
 
 Бот для создания персонализированных аудио сказок в виде сериала. 
 Сериал состоит из сезонов. 
-Каждый сезон состоит из эпизодов в каждом эпизоде по 5 серий.
+В каждом сезоне 10 серий.
 
 
 
