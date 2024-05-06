@@ -66,6 +66,7 @@ class User(Base):
     __tablename__ = 'users'
     tg_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     username: Mapped[Optional[str]]
+    chapters_available: Mapped[int] = mapped_column(server_default=1)
     packages: Mapped["Package"] = relationship(back_populates="user", lazy='selectin')
     tales: Mapped[List["Tale"]] = relationship(back_populates="user", lazy='selectin')
     subscription: Mapped["Subscription"] = relationship(back_populates="user", lazy='selectin')
