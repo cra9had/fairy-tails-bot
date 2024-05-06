@@ -106,14 +106,11 @@ async def create_task_to_plan(arq_pool: ArqRedis, dialog_manager: DialogManager,
 
     tg = TaleGenerator()
     if not tale_params:
-        #tale_plan = await tg.generate_tale_plan(sex=sex, name=name, age=age, interests=interests)
-        tale_plan = '123'
+        tale_plan = await tg.generate_tale_plan(sex=sex, name=name, age=age, interests=interests)
     else:
-        #tale_plan = await tg.generate_tale_plan_continue(provided_history=chat_history)
-        tale_plan = '123'
+        tale_plan = await tg.generate_tale_plan_continue(provided_history=chat_history)
 
-    #tale_photo_url = await tg.generate_tale_season_photo(season_plan=tale_plan)
-    tale_photo_url = "https://ir-3.ozone.ru/s3/multimedia-1-z/wc1000/7016992727.jpg"
+    tale_photo_url = await tg.generate_tale_season_photo(season_plan=tale_plan)
     dialog_manager.dialog_data.update(tale_plan=tale_plan)
     dialog_manager.dialog_data.update(chat_history=tg.gpt.discussion[:])
 
@@ -145,11 +142,9 @@ async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager,
 
     tg = TaleGenerator(provided_history=provided_history)
     if tale_params.is_season_begin():
-        #tale = await tg.generate_first_chapter(tale_params.season)
-        tale = 'tale_chap'
+        tale = await tg.generate_first_chapter(tale_params.season)
     else:
-        #tale = await tg.generate_next_chapter()
-        tale = 'tale_chap'
+        tale = await tg.generate_next_chapter()
 
     await change_user_chapters(session, user_id, -1)
     tale_voice = await process_translation(text=tale, user_id=user_id)
