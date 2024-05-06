@@ -6,6 +6,8 @@ services:
       - redis
     env_file:
       - .env
+    volumes:
+      - .:/app
     restart: on-failure:10
 
   app:
