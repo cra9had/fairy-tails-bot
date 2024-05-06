@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from aiogram_dialog import DialogManager, StartMode
 
-from bot.db.orm import get_user_loop
+from bot.db.orm import get_user_loop, add_user
 from bot.scheduler.loops import Loop1
 
 from bot.db.models import User, LoopEnum
@@ -30,7 +30,9 @@ async def start_cmd(message: Message, dialog_manager: DialogManager, sched: Cont
     # catch an error (so... user just have to be already registered in db at this moment)
 
     user_id = message.from_user.id
+    username = message.from_user.username
 
+    await add_user(session, user_id, username)
     loop_from_db: LoopEnum = await get_user_loop(session, user_id)
 
     # if user clicks on this button first time -> create task

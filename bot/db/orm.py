@@ -1,10 +1,37 @@
+import logging
 from aiogram_dialog import DialogManager
 from sqlalchemy import select, ScalarResult, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from bot.db.models import Tale, User, LoopEnum
 
+from sqlalchemy.exc import IntegrityError
 
-async def create_tale(session: AsyncSession, title: str, description: str,  user_id: int):
+logger = logging.getLogger(__name__)
+
+
+async def add_user(session: AsyncSession, tg_id: int, username: str | None = None):
+    user_query = await session.execute(select(User).filter_by(tg_id=tg_id))
+    existing_user = user_query.scalar_one_or_none()
+
+    if existing_user:
+        logger.info(f"User {tg_id} already exists")
+        return existing_user
+
+    try:
+        if username:
+            new_user = User(tg_id=tg_id, username=username)
+        else:
+            new_user = User(tg_id=tg_id)
+        session.add(new_user)
+        await session.commit()
+        logger.info(f"User {tg_id} has been added into users table")
+        return new_user
+    except IntegrityError as e:
+        logger.error(f"While adding user {tg_id} into users table occurs IntegrityError: {e}")
+        await session.rollback()
+
+
+async def create_tale(session: AsyncSession, title: str, description: str, user_id: int):
     tale = Tale(title=title, description_prompt=description, user_id=user_id)
     session.add(tale)
     await session.commit()
