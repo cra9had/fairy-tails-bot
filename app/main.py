@@ -1,4 +1,5 @@
 import os
+import math
 from aiogram import Bot, html
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
@@ -22,7 +23,7 @@ async def root(request: Request):
     sign = request.headers.get('Sign')
 
     tg_user_id = int(form['order_num'])
-    order_sum = form['sum']
+    order_sum = math.trunc(float(form['sum']))
 
     check_sign = ProdamusVerification.verify(form, sign)
 
@@ -32,7 +33,14 @@ async def root(request: Request):
     elif form['payment_status'] != 'success':
         raise HTTPException(status.HTTP_402_PAYMENT_REQUIRED)
 
-    chap_quantity = 5
+    match order_sum:
+        case 690:
+            chap_quantity = 10
+        case 1090:
+            chap_quantity = 20
+        case 1190:
+            chap_quantity = 30
+
     async with db_pool() as session:
         await change_user_chapters(session, tg_user_id, chap_quantity)
 
