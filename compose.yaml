@@ -1,11 +1,37 @@
 services:
-  web:
+  bot:
     build: .
     depends_on:
       - db
       - redis
     env_file:
-      - path: ./.env
+      - .env
+    volumes:
+      - .:/app
+    restart: on-failure:10
+
+  worker:
+    build:
+      context: .
+      dockerfile: worker_Dockerfile
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    restart: on-failure:10
+
+
+  app:
+    build:
+      context: .
+      dockerfile: ./app/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - 8000:8000
 
   redis:
     image: "redis:alpine"
@@ -17,4 +43,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=foo
+      - POSTGRES_DB=tales_db
+
+    restart: on-failure:10
+

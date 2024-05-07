@@ -11,6 +11,7 @@ from bot.on_clicks.user import set_selected_plan
 from bot.states.user import Subscription
 
 from bot.texts.window_texts import DISCOUNT_TEXT
+from bot.texts.sub_plans_texts import MAX_PLAN, MIN_PLAN, STANDARD_PLAN
 
 
 def get_discount_text_window():
@@ -27,7 +28,7 @@ def get_discount_text_window():
 def get_subscription_plans_window():
 
     window = Window(
-        Const('Выберите пакет'),
+        Const(f'{MIN_PLAN}\n\n{STANDARD_PLAN}\n\n{MAX_PLAN}'),
         Column(
             Select(
                 Format('{item[0]} - {item[1]}р'),
@@ -49,7 +50,6 @@ def get_buy_subscription_window():
         Format('К оплате <b>{dialog_data[plan_selected]}р</b>'),
         Column(
             Url(Const("Перейти к оплате"), Format('{payment_url}')),
-            Button(Const("Я оплатил"), id='m_tails'),
         ),
         parse_mode='HTML',
         getter=get_payment_url,
