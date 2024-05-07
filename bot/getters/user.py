@@ -128,7 +128,7 @@ async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager,
 
     user = await get_user(session, user_id)
 
-    message = await event_update.callback_query.message.answer(TIP_TEXT)
+    await event_update.callback_query.message.answer(WAIT_GENERATION_TALE)
     await event_update.callback_query.message.delete()
 
     data = dialog_manager.start_data
@@ -151,7 +151,6 @@ async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager,
         finish = True
 
     dialog_manager.dialog_data.update({"tale_params": tale_params.to_json(), "chat_history": tg.gpt.discussion[:]})
-    await message.delete()
     await arq_pool.enqueue_job('send_tail_to_user_task', user_id=user_id,
                                context={"finish": finish})
 
