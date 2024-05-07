@@ -128,11 +128,6 @@ async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager,
 
     user = await get_user(session, user_id)
 
-    if not user.chapters_available:
-        await event_update.callback_query.message.answer("У вас закончились сказки. Но вы можете взять ещё:")
-        await dialog_manager.start(Subscription.plans, mode=StartMode.RESET_STACK)
-        return {}
-
     message = await event_update.callback_query.message.answer(TIP_TEXT)
     await event_update.callback_query.message.delete()
 

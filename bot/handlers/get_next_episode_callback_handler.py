@@ -12,7 +12,7 @@ from aiogram_dialog import DialogManager, StartMode, ShowMode
 from bot.db.models import TaleParams
 from bot.states.user import MainWindow, Subscription
 
-from bot.db.orm import get_user_have_sub
+from bot.db.orm import get_user_have_sub, get_user
 
 router = Router()
 logger = logging.getLogger(__name__)
@@ -23,6 +23,15 @@ async def get_next_episode_callback_handler(
         callback: CallbackQuery, dialog_manager: DialogManager, session: AsyncSession = None
 ):
     user_have_sub = dialog_manager.middleware_data['user_subscribed']
+
+    user_id = callback.from_user.id
+    user = await get_user(session, user_id)
+
+    if not user.chapters_available:
+        await callback.message.answer("У вас закончились сказки. Но вы можете взять ещё:")
+        await dialog_manager.start(Subscription.plans, mode=StartMode.RESET_STACK)
+        return {}
+
     if user_have_sub:
         tale_params = dialog_manager.dialog_data.get('tale_params')
         chat_history = dialog_manager.dialog_data.get('chat_history')
