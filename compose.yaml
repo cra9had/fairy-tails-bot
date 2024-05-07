@@ -47,23 +47,3 @@ services:
 
     restart: on-failure:10
 
-  app:
-    build:
-      context: .
-      dockerfile: ./app/Dockerfile
-    env_file:
-      - .env
-    ports:
-      - 8000:8000
-
-  redis:
-    image: "redis:alpine"
-
-  db:
-    image: "postgres:15.3"
-    expose:
-      - 5432
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=tales_db
