@@ -10,3 +10,4 @@ CHANNEL_ID=-1002142809785
 PRODAMUS_API_KEY=
 PRODAMUS_PAYMENT_URL=https://<sub_domain>.payform.ru/
 PRODAMUS_PRODUCT_NAME=Создание персонализированных аудиосказок
+TRANSLATION_API_KEY=
