@@ -58,6 +58,7 @@ async def loop2_task(bot: Bot, user_id: int, scheduler: ContextSchedulerDecorato
     next_step = list(Loop2)[list(Loop2).index(step) + 1]  # enum can be iterated, we take next.
 
     if next_step is Loop2.done:
+        await set_segment_after_24h(scheduler, user_id, SegmentEnum.channel_sub)
         return
 
     new_next_run = datetime.now(timezone.utc) + timedelta(hours=next_step.hour)
@@ -81,6 +82,7 @@ async def loop3_task(bot: Bot, user_id: int, scheduler: ContextSchedulerDecorato
     next_step = list(Loop3)[list(Loop3).index(step) + 1]  # enum can be iterated, we take next.
 
     if next_step is Loop3.done:
+        await set_segment_after_24h(scheduler, user_id, SegmentEnum.second_episode)
         return
 
     new_next_run = datetime.now(timezone.utc) + timedelta(hours=next_step.hour)
@@ -104,6 +106,7 @@ async def loop4_task(bot: Bot, user_id: int, scheduler: ContextSchedulerDecorato
     next_step = list(Loop4)[list(Loop4).index(step) + 1]  # enum can be iterated, we take next.
 
     if next_step is Loop4.done:
+        await set_segment_after_24h(scheduler, user_id, SegmentEnum.plan)
         return
 
     new_next_run = datetime.now(timezone.utc) + timedelta(hours=next_step.hour)
