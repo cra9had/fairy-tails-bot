@@ -1,8 +1,10 @@
 import logging
 from aiogram_dialog import DialogManager, StartMode
-from sqlalchemy import select, ScalarResult, update, insert
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from bot.db.models import Tale, User, LoopEnum, Child, GenderEnum, AgeEnum, SubscriptionEnum
+from bot.db.models import Tale, User, LoopEnum, Child, GenderEnum, AgeEnum, SegmentEnum
+
+from bot.db.db_pool import db_pool
 
 from bot.states.user import Subscription
 
@@ -55,6 +57,13 @@ async def change_user_chapters(session: AsyncSession, tg_id: int, chap_quantity:
         logger.error(f"Cannot change chapters for User {tg_id}: not found")
         await session.rollback()
 
+
+async def update_user_segment(tg_id: int, segment: SegmentEnum):
+    async with db_pool.session() as session:
+        query = update(User).values(segment=segment)
+
+        await session.execute(query)
+        await session.commit()
 
 async def get_user_chapters(session: AsyncSession, tg_id: int):
     user = await session.execute(select(User).filter_by(tg_id=tg_id))
