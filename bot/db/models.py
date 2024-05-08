@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Optional, List
 
 from sqlalchemy import ForeignKey, Text, BigInteger
-from sqlalchemy.orm import declarative_base, relationship, mapped_column, Mapped
+from sqlalchemy.orm import relationship, mapped_column, Mapped
 
 from bot.db.base import Base
 
@@ -15,6 +15,35 @@ class LoopEnum(enum.Enum):
     third = "3"
     fourth = "4"
     subscriber = "done"
+
+
+class GenderEnum(enum.Enum):
+    male = "male"
+    female = "female"
+
+
+class AgeEnum(enum.Enum):
+    three = 3
+    four = 4
+    five = 5
+    six = 6
+    seven = 7
+    eight = 8
+
+class SegmentEnum(enum.Enum):
+    start = 'start'
+    channel_sub = 'channel_sub'
+    second_episode = 'second_episode'
+    plan = 'plan'
+    payed = 'payed'
+
+
+
+class SubscriptionEnum(enum.Enum):
+    trial_plan = "trial_plan"
+    min_plan = 'min_plan'
+    standard_plan = 'standard_plan'
+    max_plan = 'max_plan'
 
 
 @dataclass
@@ -72,10 +101,29 @@ class User(Base):
     tales: Mapped[List["Tale"]] = relationship(back_populates="user", lazy='selectin')
     subscription: Mapped["Subscription"] = relationship(back_populates="user", lazy='selectin')
 
+    subscription_plan: Mapped[SubscriptionEnum] = mapped_column(server_default=SubscriptionEnum.trial_plan.name)
+
+    segment: Mapped[Optional[SegmentEnum]]
+
+    child: Mapped["Child"] = relationship(back_populates="parent")
+
     loop: Mapped[LoopEnum] = mapped_column(server_default=LoopEnum.first.name)
 
     def __repr__(self):
         return f'{self.tg_id=} {self.tales=}'
+
+
+class Child(Base):
+    __tablename__ = 'childs'
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+
+    gender: Mapped[Optional[GenderEnum]]
+    age: Mapped[Optional[AgeEnum]]
+
+    parent_tg_id: Mapped[int] = mapped_column(ForeignKey('users.tg_id', ondelete='CASCADE'))
+
+    parent: Mapped["User"] = relationship(back_populates="child")
+
 
 
 class Subscription(Base):

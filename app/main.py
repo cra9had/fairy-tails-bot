@@ -9,9 +9,13 @@ import aiohttp
 
 from starlette.datastructures import FormData
 
+from app.db.orm import update_plan, set_loop_subscriber
 from app.verification.prodamus_verification import ProdamusVerification
 from bot.db.db_pool import db_pool
-from bot.db.orm import change_user_chapters
+from bot.db.orm import change_user_chapters, update_user_segment
+
+from bot.db.models import SubscriptionEnum, SegmentEnum
+
 
 app = FastAPI()
 bot = Bot(token=os.getenv('BOT_TOKEN'))
@@ -36,13 +40,19 @@ async def root(request: Request):
     match order_sum:
         case 690:
             chap_quantity = 10
+            subscription_plan = SubscriptionEnum.min_plan
         case 1090:
             chap_quantity = 20
+            subscription_plan = SubscriptionEnum.standard_plan
         case 1190:
             chap_quantity = 30
+            subscription_plan = SubscriptionEnum.max_plan
 
     async with db_pool() as session:
         await change_user_chapters(session, tg_user_id, chap_quantity)
+        await update_plan(session=session, subscription_plan=subscription_plan, tg_id=tg_user_id)
+        await set_loop_subscriber(session=session, tg_id=tg_user_id)
+        await update_user_segment(tg_id=tg_user_id, segment=SegmentEnum.payed)
 
     async with bot.session:
         kb = InlineKeyboardMarkup(
