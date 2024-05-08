@@ -120,7 +120,7 @@ class Child(Base):
     gender: Mapped[Optional[GenderEnum]]
     age: Mapped[Optional[AgeEnum]]
 
-    parent_tg_id: Mapped[int] = mapped_column(ForeignKey('users.tg_id'))
+    parent_tg_id: Mapped[int] = mapped_column(ForeignKey('users.tg_id', ondelete='CASCADE'))
 
     parent: Mapped["User"] = relationship(back_populates="child")
 
