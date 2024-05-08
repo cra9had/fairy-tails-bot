@@ -80,7 +80,7 @@ async def get_tale(session: AsyncSession, tale_id: int):
 
 
 async def update_child(session: AsyncSession, parent_tg_id: int, gender: GenderEnum, age: AgeEnum) -> Child:
-    query = update(Child).values(gender=gender, age=age.value).where(Child.parent_tg_id == parent_tg_id).returning(Child)
+    query = update(Child).values(gender=gender, age=age).where(Child.parent_tg_id == parent_tg_id).returning(Child)
 
     child = await session.execute(query)
     await session.commit()
@@ -97,7 +97,7 @@ async def save_child_settings_to_db(*args):
     gender_enum: GenderEnum = GenderEnum[gender_raw]
 
     age_raw = int(dialog_manager.dialog_data.get('age'))
-    age_enum: AgeEnum = AgeEnum(age_raw).value
+    age_enum: AgeEnum = AgeEnum(age_raw)
 
     session: AsyncSession = dialog_manager.middleware_data['session']
 
