@@ -31,11 +31,6 @@ async def start_cmd(message: Message, dialog_manager: DialogManager, sched: Cont
 
     user = await add_user(session, user_id, username)
 
-    if not user.chapters_available:
-        await message.answer("У вас закончились сказки. Но вы можете взять ещё:")
-        await dialog_manager.start(Subscription.plans, mode=StartMode.RESET_STACK)
-        return
-
     loop_from_db: LoopEnum = await get_user_loop(session, user_id)
 
     if loop_from_db is LoopEnum.first:

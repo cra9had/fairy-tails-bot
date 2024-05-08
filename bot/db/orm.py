@@ -1,8 +1,10 @@
 import logging
-from aiogram_dialog import DialogManager
+from aiogram_dialog import DialogManager, StartMode
 from sqlalchemy import select, ScalarResult, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from bot.db.models import Tale, User, LoopEnum
+
+from bot.states.user import Subscription
 
 from sqlalchemy.exc import IntegrityError
 
@@ -73,9 +75,17 @@ async def get_tale(session: AsyncSession, tale_id: int):
     return tale_query.scalar_one_or_none()
 
 
-async def save_child_settings_to_db(session: AsyncSession, *args):
-    dialog_manager: DialogManager = args[1]
-    print(args)
+async def save_child_settings_to_db(*args):
+    dialog_manager: DialogManager = args[2]
+    user_id = dialog_manager.event.from_user.id
+    username = dialog_manager.event.from_user.username
+
+    session: AsyncSession = dialog_manager.middleware_data['session']
+
+    user = await add_user(session, user_id, username)
+
+    if not user.chapters_available:
+        await dialog_manager.start(Subscription.discount, mode=StartMode.RESET_STACK)
     # logic to save all settings to db
 
 

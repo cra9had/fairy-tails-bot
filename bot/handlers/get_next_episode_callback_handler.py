@@ -27,12 +27,7 @@ async def get_next_episode_callback_handler(
     user_id = callback.from_user.id
     user = await get_user(session, user_id)
 
-    if not user.chapters_available:
-        await callback.message.answer("У вас закончились сказки. Но вы можете взять ещё:")
-        await dialog_manager.start(Subscription.plans, mode=StartMode.RESET_STACK)
-        return {}
-
-    if user_have_sub:
+    if user.chapters_available:
         tale_params = dialog_manager.dialog_data.get('tale_params')
         chat_history = dialog_manager.dialog_data.get('chat_history')
         logging.debug(f"tale_params in get_next_episode handler for user_id {callback.message.from_user.id}: {tale_params}")

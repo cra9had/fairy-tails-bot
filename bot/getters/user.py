@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.db.models import LoopEnum, TaleParams
 from bot.db.orm import get_current_tail_index, get_current_episode_index, get_user_loop, change_user_loop, get_user, \
-    change_user_chapters
+    change_user_chapters, add_user
 from bot.on_clicks.user import to_child, to_profile, to_start, to_buy_subscription
 from bot.payments.generate_payment_link import GeneratePaymentLinkFabric
 from bot.scheduler.loops import Loop1, Loop3, Loop4
@@ -86,8 +86,10 @@ async def get_setted_child_settings(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def create_task_to_plan(arq_pool: ArqRedis, dialog_manager: DialogManager, event_update, aiogd_stack, bot,
+async def create_task_to_plan(arq_pool: ArqRedis, dialog_manager: DialogManager, event_update,
                               **kwargs):
+    user_id: int = dialog_manager.event.from_user.id
+
     message = await event_update.callback_query.message.answer(WAIT_GENERATION_PLAN)
     await event_update.callback_query.message.delete()
     await event_update.callback_query.answer()
@@ -123,10 +125,18 @@ async def create_task_to_plan(arq_pool: ArqRedis, dialog_manager: DialogManager,
     return {"tale_plan": tale_plan, 'tale_photo_url': tale_photo_url}
 
 
-async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager, event_update, session, **kwargs):
+async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager, event_update, session, sched: ContextSchedulerDecorator, **kwargs):
     user_id: int = dialog_manager.event.from_user.id
+    username = dialog_manager.event.from_user.username
 
-    user = await get_user(session, user_id)
+    user = await add_user(session, user_id, username)
+
+    if not user.chapters_available:
+        await dialog_manager.start(Subscription.discount, mode=StartMode.RESET_STACK, show_mode=ShowMode.SEND)
+        return
+
+    # to start 3-thd scheduling
+    await create_task_to_episode(sched=sched, arq_pool=arq_pool, dialog_manager=dialog_manager, event_update=event_update, session=session)
 
     await event_update.callback_query.message.answer(WAIT_GENERATION_TALE)
     await event_update.callback_query.message.delete()
@@ -162,6 +172,10 @@ async def create_schedule_loop4(
         sched: ContextSchedulerDecorator,
         **kwargs
 ):
+    session: AsyncSession = dialog_manager.middleware_data['session']
+
+    await change_user_loop(session=session, user_id=dialog_manager.event.from_user.id, new_loop=LoopEnum.fourth)
+
     user_id: int = dialog_manager.event.from_user.id
 
     next_run = datetime.now(timezone.utc) + timedelta(hours=Loop4.task_1.hour)
@@ -188,9 +202,10 @@ async def create_task_to_episode(
 
     session = dialog_manager.middleware_data['session']
 
-    current_tail_index: int = await get_current_tail_index(session, user_id)
-
-    await arq_pool.enqueue_job('send_episode_to_user_task', user_id=user_id, current_tail_index=current_tail_index)
+    # for the future
+    # current_tail_index: int = await get_current_tail_index(session, user_id)
+    #
+    # await arq_pool.enqueue_job('send_episode_to_user_task', user_id=user_id, current_tail_index=current_tail_index)
 
     loop_from_db: LoopEnum = await get_user_loop(session, user_id)
 

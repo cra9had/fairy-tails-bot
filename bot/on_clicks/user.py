@@ -64,14 +64,6 @@ async def go_chapter(callback: CallbackQuery, button: Button, dialog_manager: Di
     await dialog_manager.switch_to(Tail.curr_chapter)
 
 
-async def send_audio_file(
-        callback: CallbackQuery, button: Button, dialog_manager: DialogManager
-):
-    bot: Bot = dialog_manager.middleware_data['bot']
-    user: User = dialog_manager.middleware_data['event_from_user']
-
-    await bot.send_audio(chat_id=user.id, audio='https://web-skazki.ru/audio-files/luntik.mp3')
-
 
 async def set_selected_plan(callback: CallbackQuery, widget: Any,
                             dialog_manager: DialogManager, item_id: str):
