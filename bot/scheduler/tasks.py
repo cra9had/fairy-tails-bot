@@ -4,6 +4,8 @@ from typing import Callable
 from aiogram import Bot
 from apscheduler_di import ContextSchedulerDecorator
 
+from bot.db.orm import update_user_segment
+from bot.db.models import SegmentEnum
 from bot.keyboards.inline.tail_keyboard import get_loop1_keyboard, get_loop2_keyboard, get_episode_keyboard, \
     get_loop4_keyboard
 from bot.scheduler.loops import Loop1, Loop2, Loop3, Loop4
@@ -32,6 +34,7 @@ async def loop1_task(bot: Bot, user_id: int, scheduler: ContextSchedulerDecorato
     next_step = list(Loop1)[list(Loop1).index(step) + 1]  # enum can be iterated, we take next
 
     if next_step is Loop1.done:
+        await set_segment_after_24h(scheduler, user_id, SegmentEnum.start)
         return
 
     new_next_run = datetime.now(timezone.utc) + timedelta(hours=next_step.hour)
@@ -111,4 +114,17 @@ async def loop4_task(bot: Bot, user_id: int, scheduler: ContextSchedulerDecorato
         new_next_run,
         user_id,
         next_step,
+    )
+
+
+async def set_segment_after_24h(scheduler: ContextSchedulerDecorator, tg_id: int, segment: SegmentEnum):
+    scheduler.add_job(
+        update_user_segment,
+        'date',
+        run_date=datetime.now(timezone.utc) + timedelta(hours=24),
+        id=str(tg_id),
+        kwargs={
+            'tg_id': tg_id,
+            'segment': segment
+        }
     )
