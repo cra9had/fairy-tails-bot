@@ -59,7 +59,7 @@ async def change_user_chapters(session: AsyncSession, tg_id: int, chap_quantity:
 
 
 async def update_user_segment(tg_id: int, segment: SegmentEnum):
-    async with db_pool.session() as session:
+    async with db_pool() as session:
         query = update(User).values(segment=segment)
 
         await session.execute(query)
