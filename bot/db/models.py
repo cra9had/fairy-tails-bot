@@ -95,7 +95,7 @@ class User(Base):
 
     subscription_plan: Mapped[SubscriptionEnum] = mapped_column(server_default=SubscriptionEnum.trial_plan.name)
 
-    child: Mapped['Child'] = relationship(back_populates="parent_tg_id", lazy='selectin')
+    child: Mapped["Child"] = relationship(back_populates="parent")
 
     loop: Mapped[LoopEnum] = mapped_column(server_default=LoopEnum.first.name)
 
@@ -110,7 +110,9 @@ class Child(Base):
     gender: Mapped[GenderEnum]
     age: Mapped[AgeEnum]
 
-    parent_tg_id: Mapped['User'] = mapped_column(ForeignKey('users.tg_id'))
+    parent_tg_id: Mapped[int] = mapped_column(ForeignKey('users.tg_id'))
+
+    parent: Mapped["User"] = relationship(back_populates="child")
 
 
 
