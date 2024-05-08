@@ -30,6 +30,14 @@ class AgeEnum(enum.Enum):
     seven = 7
     eight = 8
 
+class SegmentEnum(enum.Enum):
+    start = 'start'
+    channel_sub = 'channel_sub'
+    second_episode = 'second_episode'
+    plan = 'plan'
+    payed = 'payed'
+
+
 
 class SubscriptionEnum(enum.Enum):
     trial_plan = "trial_plan"
@@ -94,6 +102,8 @@ class User(Base):
     subscription: Mapped["Subscription"] = relationship(back_populates="user", lazy='selectin')
 
     subscription_plan: Mapped[SubscriptionEnum] = mapped_column(server_default=SubscriptionEnum.trial_plan.name)
+
+    segment: Mapped[Optional[SegmentEnum]]
 
     child: Mapped["Child"] = relationship(back_populates="parent")
 
