@@ -107,8 +107,8 @@ class Child(Base):
     __tablename__ = 'childs'
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    gender: Mapped[GenderEnum]
-    age: Mapped[AgeEnum]
+    gender: Mapped[Optional[GenderEnum]]
+    age: Mapped[Optional[AgeEnum]]
 
     parent_tg_id: Mapped[int] = mapped_column(ForeignKey('users.tg_id'))
 
