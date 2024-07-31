@@ -25,7 +25,7 @@ class ChatGPT:
             api_key=os.getenv("OPENAI_API_KEY")
         )
         self.discussion: List[Optional[Dict]] = []
-        self.model = "gpt-4-turbo"
+        self.model = "gpt-4o"
 
     async def generate_first_series(self):
         return await self.get_text_by_prompt(FIRST_CHAPTER_PROMPT, use_history=True)
