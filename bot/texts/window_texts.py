@@ -16,11 +16,11 @@ NAME_TEXT = '''Напишите имя ребенка⌨️
 '''
 
 
-CHILD_SETTINGS_TEXT = '''Отлично! Проверим данные) 
-☑️ {gender}
-☑️ {age}
-☑️ {name} 
-☑️ {activities}
+CHILD_SETTINGS_TEXT = '''👍Отлично! Проверим данные
+✅ Пол - {gender}
+✅ Возраст - {age}
+✅ Имя - {name} 
+✅ Тема - {activities}
 '''
 
 

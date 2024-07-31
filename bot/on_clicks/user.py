@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime, timezone, timedelta
 from typing import Optional, Any
@@ -11,7 +12,7 @@ from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog import DialogManager, StartMode
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
 from bot.db.models import LoopEnum
 from bot.db.orm import create_tale, get_user_loop, change_user_loop
@@ -19,7 +20,7 @@ from bot.scheduler.loops import Loop2
 from bot.scheduler.tasks import base_add_job, loop2_task
 from bot.states.user import MainWindow
 
-load_dotenv('.env')
+load_dotenv(find_dotenv())
 
 
 async def to_profile(*args):
@@ -91,7 +92,7 @@ async def check_user_subscribed(
         callback: CallbackQuery, button: Button, dialog_manager: DialogManager,
 ):
     user_id = callback.from_user.id
-
+    logging.info(int(os.getenv('CHANNEL_ID')))
     member: Optional[ChatMember] = await callback.bot.get_chat_member(
         chat_id=int(os.getenv('CHANNEL_ID')),
         user_id=user_id

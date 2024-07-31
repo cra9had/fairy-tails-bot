@@ -139,7 +139,6 @@ async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager,
     await create_task_to_episode(sched=sched, arq_pool=arq_pool, dialog_manager=dialog_manager, event_update=event_update, session=session)
 
     await event_update.callback_query.message.answer(WAIT_GENERATION_TALE)
-    await event_update.callback_query.message.delete()
 
     data = dialog_manager.start_data
     provided_history = data.get('chat_history') or []
