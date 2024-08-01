@@ -1,10 +1,11 @@
+import logging
 from datetime import timedelta, timezone, datetime
 
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
-from aiogram_dialog import DialogManager, StartMode
+from aiogram_dialog import DialogManager, StartMode, ShowMode
 
 from bot.db.models import LoopEnum
 from bot.db.orm import get_user_loop, change_user_loop
@@ -14,6 +15,7 @@ from bot.states.user import MainWindow
 
 router = Router()
 
+logger = logging.getLogger(__name__)
 
 @router.callback_query(F.data == 'get_tail')
 async def get_tail_callback_handler(callback: CallbackQuery, dialog_manager: DialogManager):
@@ -22,7 +24,7 @@ async def get_tail_callback_handler(callback: CallbackQuery, dialog_manager: Dia
     chat_history = dialog_manager.dialog_data.get('chat_history')
     tale_params = dialog_manager.dialog_data.get('tale_params')
 
-    await dialog_manager.start(MainWindow.channel_subscription, mode=StartMode.NEW_STACK,
+    await dialog_manager.start(MainWindow.channel_subscription, mode=StartMode.RESET_STACK, show_mode=ShowMode.SEND,
                                data={"tale_params": tale_params, "chat_history": chat_history})
     dialog_manager.middleware_data.update({"tale_params": tale_params, "chat_history": chat_history})
 
