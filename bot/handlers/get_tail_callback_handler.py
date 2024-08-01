@@ -24,6 +24,7 @@ async def get_tail_callback_handler(callback: CallbackQuery, dialog_manager: Dia
 
     await dialog_manager.start(MainWindow.channel_subscription, mode=StartMode.NEW_STACK,
                                data={"tale_params": tale_params, "chat_history": chat_history})
+    dialog_manager.middleware_data.update({"tale_params": tale_params, "chat_history": chat_history})
 
     user_id = callback.from_user.id
 
