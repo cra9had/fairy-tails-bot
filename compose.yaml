@@ -8,7 +8,7 @@ services:
       - .env
     volumes:
       - .:/app
-    restart: on-failure:10
+    restart: always
 
   worker:
     build:
@@ -21,7 +21,7 @@ services:
       - .env
     volumes:
       - .:/app
-    restart: on-failure:10
+    restart: always
 
 
   app:
@@ -33,8 +33,12 @@ services:
     ports:
       - 8000:8000
 
+    restart: always
+
   redis:
     image: "redis:alpine"
+
+    restart: always
 
   db:
     image: "postgres:15.3"
@@ -45,5 +49,4 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=tales_db
 
-    restart: on-failure:10
-
+    restart: always
