@@ -39,11 +39,11 @@ class TaleGenerator:
     async def generate_tale_plan(self, name: str, sex: Literal['Мальчик', 'Девочка'], age: int,
                                  interests: str):
         return (await self.gpt.get_text_by_prompt(TaleGetters.get_season_plan(name, sex, age, interests),
-                                                  use_history=True)).replace('*', '')
+                                                  use_history=True)).replace('*', '').replace("#", "")
 
     async def generate_tale_plan_continue(self, provided_history: list | None = None):
         return (await self.gpt.get_text_by_prompt(TaleGetters.get_season_plan_continue(),
-                                                  provided_history=provided_history)).replace('*', '')
+                                                  provided_history=provided_history)).replace('*', '').replace("#", "")
 
     async def generate_tale_title(self):
         title = await self.gpt.get_text_by_prompt(GET_TALE_NAME_PROMPT)
@@ -52,13 +52,13 @@ class TaleGenerator:
     async def generate_first_chapter(self, season_num: int, provided_history: list | None = None):
         first_chapter = await self.gpt.get_text_by_prompt(TaleGetters.get_first_chapter(season_num),
                                                           use_history=True, provided_history=provided_history)
-        first_chapter = first_chapter.replace('*', '')
+        first_chapter = first_chapter.replace('*', '').replace("#", "")
         return first_chapter
 
     async def generate_next_chapter(self, provided_history: list | None = None):
         new_chapter = await self.gpt.get_text_by_prompt(TaleGetters.get_next_chapter(),
                                                         use_history=True, provided_history=provided_history)
-        new_chapter = new_chapter.replace('*', '')
+        new_chapter = new_chapter.replace('*', '').replace('*', '').replace("#", "")
 
         return new_chapter
 
