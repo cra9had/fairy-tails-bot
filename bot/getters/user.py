@@ -25,7 +25,7 @@ from bot.scheduler.tasks import base_add_job, loop3_task, loop4_task
 from bot.services.gpt import ChatGPT
 from bot.services.tales_prompts import TaleGenerator
 from bot.services.text_to_speech import process_translation
-from bot.texts.window_texts import WAIT_GENERATION_TALE, TIP_TEXT, WAIT_GENERATION_PLAN
+from bot.texts.window_texts import WAIT_GENERATION_TALE, TIP_TEXT, WAIT_GENERATION_PLAN, NEXT_EPISODE_GENERATION
 
 from aiogram.enums import ContentType
 from aiogram_dialog.api.entities import MediaAttachment, MediaId
@@ -73,7 +73,6 @@ async def get_full_info_for_dialog(*args, **kwargs):
 
 
 async def get_setted_child_settings(dialog_manager: DialogManager, **kwargs):
-
     gender = dialog_manager.dialog_data.get('gender')
     name = dialog_manager.dialog_data.get('name')
     age = dialog_manager.dialog_data.get('age')
@@ -125,7 +124,8 @@ async def create_task_to_plan(arq_pool: ArqRedis, dialog_manager: DialogManager,
     return {"tale_plan": tale_plan, 'tale_photo_url': tale_photo_url}
 
 
-async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager, event_update, session, sched: ContextSchedulerDecorator, **kwargs):
+async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager, event_update, session,
+                              sched: ContextSchedulerDecorator, **kwargs):
     user_id: int = dialog_manager.event.from_user.id
     username = dialog_manager.event.from_user.username
 
@@ -136,9 +136,8 @@ async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager,
         return
 
     # to start 3-thd scheduling
-    await create_task_to_episode(sched=sched, arq_pool=arq_pool, dialog_manager=dialog_manager, event_update=event_update, session=session)
-
-    await event_update.callback_query.message.answer(WAIT_GENERATION_TALE)
+    await create_task_to_episode(sched=sched, arq_pool=arq_pool, dialog_manager=dialog_manager,
+                                 event_update=event_update, session=session)
 
     data = dialog_manager.start_data
     provided_history = data.get('chat_history') or []
@@ -146,8 +145,10 @@ async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager,
 
     tg = TaleGenerator(provided_history=provided_history)
     if tale_params.is_season_begin():
+        await event_update.callback_query.message.answer(WAIT_GENERATION_TALE)
         tale = await tg.generate_first_chapter(tale_params.season)
     else:
+        await event_update.callback_query.message.answer(NEXT_EPISODE_GENERATION)
         tale = await tg.generate_next_chapter()
 
     await change_user_chapters(session, user_id, -1)
