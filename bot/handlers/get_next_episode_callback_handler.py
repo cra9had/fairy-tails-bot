@@ -31,9 +31,6 @@ async def get_next_episode_callback_handler(
         tale_params = dialog_manager.dialog_data.get('tale_params')
         chat_history = dialog_manager.dialog_data.get('chat_history')
 
-        logger.info(f"{dialog_manager.middleware_data.get('tale_params')} +++++ middleware_data")
-        logger.info(f"{dialog_manager.dialog_data.get('tale_params')} +++++ dialog_data")
-
         logging.debug(f"tale_params in get_next_episode handler for user_id {callback.message.from_user.id}: {tale_params}")
         if TaleParams.from_json(tale_params).is_season_begin():
             await dialog_manager.start(MainWindow.wait_tail, mode=StartMode.RESET_STACK,

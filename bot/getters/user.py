@@ -73,16 +73,20 @@ async def get_full_info_for_dialog(*args, **kwargs):
 
 
 async def get_setted_child_settings(dialog_manager: DialogManager, **kwargs):
-    gender = dialog_manager.dialog_data.get('gender')
-    name = dialog_manager.dialog_data.get('name')
-    age = dialog_manager.dialog_data.get('age')
-    activities = dialog_manager.dialog_data.get('activities')
-    return {
-        'gender': gender,
-        'name': name,
-        'age': age,
-        'activities': activities,
-    }
+    user_child_settings = dialog_manager.dialog_data.get("user_child_settings", dict())
+
+    if not user_child_settings:
+        gender = dialog_manager.dialog_data.get('gender')
+        name = dialog_manager.dialog_data.get('name')
+        age = dialog_manager.dialog_data.get('age')
+        activities = dialog_manager.dialog_data.get('activities')
+        return {
+            'gender': gender or user_child_settings.get('gender'),
+            'name': name or user_child_settings.get('name'),
+            'age': age or user_child_settings.get('age'),
+            'activities': activities or user_child_settings.get('activities'),
+        }
+
 
 
 async def create_task_to_plan(arq_pool: ArqRedis, dialog_manager: DialogManager, event_update,
