@@ -12,4 +12,5 @@ async def child_name_handler(message: Message, message_input: MessageInput, dial
     dialog_manager.dialog_data['name'] = message.text
     # maybe some logic to check if name is correct(idk maybe its not really necessary)
     await message.reply(f'Имя {message.text} успешно установлено')
+
     await dialog_manager.switch_to(MainWindow.all_child_settings)

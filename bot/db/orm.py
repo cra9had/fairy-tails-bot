@@ -1,14 +1,13 @@
 import logging
+
 from aiogram_dialog import DialogManager, StartMode
 from sqlalchemy import select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from bot.db.models import Tale, User, LoopEnum, Child, GenderEnum, AgeEnum, SegmentEnum
 
 from bot.db.db_pool import db_pool
-
+from bot.db.models import Tale, User, LoopEnum, Child, GenderEnum, AgeEnum, SegmentEnum
 from bot.states.user import Subscription
-
-from sqlalchemy.exc import IntegrityError
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +64,7 @@ async def update_user_segment(tg_id: int, segment: SegmentEnum):
         await session.execute(query)
         await session.commit()
 
+
 async def get_user_chapters(session: AsyncSession, tg_id: int):
     user = await session.execute(select(User).filter_by(tg_id=tg_id))
     user = user.scalar_one_or_none()
@@ -88,13 +88,16 @@ async def get_tale(session: AsyncSession, tale_id: int):
     return tale_query.scalar_one_or_none()
 
 
-async def update_child(session: AsyncSession, parent_tg_id: int, gender: GenderEnum, age: AgeEnum) -> Child:
-    query = update(Child).values(gender=gender, age=age).where(Child.parent_tg_id == parent_tg_id).returning(Child)
+async def update_child(session: AsyncSession, parent_tg_id: int, gender: GenderEnum, age: AgeEnum, name: str,
+                       activities: str) -> Child:
+    query = update(Child).values(gender=gender, age=age, name=name, activities=activities).where(
+        Child.parent_tg_id == parent_tg_id).returning(Child)
 
     child = await session.execute(query)
     await session.commit()
 
     return child.scalar()
+
 
 async def save_child_settings_to_db(*args):
     dialog_manager: DialogManager = args[2]
@@ -102,17 +105,21 @@ async def save_child_settings_to_db(*args):
     user_id = dialog_manager.event.from_user.id
     username = dialog_manager.event.from_user.username
 
-    gender_raw = 'male' if dialog_manager.dialog_data.get('gender')[1:] == 'Мальчик' else 'female' #  [1:] is to escape sticker
+    gender_raw = 'male' if dialog_manager.dialog_data.get('gender')[
+                           1:] == 'Мальчик' else 'female'  # [1:] is to escape sticker
     gender_enum: GenderEnum = GenderEnum[gender_raw]
 
     age_raw = int(dialog_manager.dialog_data.get('age'))
     age_enum: AgeEnum = AgeEnum(age_raw)
 
+    child_name = dialog_manager.dialog_data["name"]
+    activities = dialog_manager.dialog_data["activities"]
+
     session: AsyncSession = dialog_manager.middleware_data['session']
 
     user = await add_user(session, user_id, username)
 
-    child = await update_child(session, user_id, gender_enum, age_enum)
+    child = await update_child(session, user_id, gender_enum, age_enum, child_name, activities)
 
     if not user.chapters_available:
         await dialog_manager.start(Subscription.discount, mode=StartMode.RESET_STACK)
@@ -136,7 +143,7 @@ async def get_current_tail_index(session: AsyncSession, user_id: int):
 async def get_user_loop(session: AsyncSession, user_id: int):
     res = await session.execute(select(User).filter_by(tg_id=user_id))
 
-    loop_from_db: LoopEnum = res.scalar().loop
+    loop_from_db: LoopEnum = res.scalar_one_or_none().loop
 
     return loop_from_db
 

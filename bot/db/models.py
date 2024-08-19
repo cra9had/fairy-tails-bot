@@ -18,8 +18,8 @@ class LoopEnum(enum.Enum):
 
 
 class GenderEnum(enum.Enum):
-    male = "male"
-    female = "female"
+    male = "Мальчик"
+    female = "Девочка"
 
 
 class AgeEnum(enum.Enum):
@@ -44,7 +44,6 @@ class SubscriptionEnum(enum.Enum):
     min_plan = 'min_plan'
     standard_plan = 'standard_plan'
     max_plan = 'max_plan'
-
 
 @dataclass
 class TaleParams:
@@ -105,7 +104,7 @@ class User(Base):
 
     segment: Mapped[Optional[SegmentEnum]]
 
-    child: Mapped["Child"] = relationship(back_populates="parent")
+    child: Mapped["Child"] = relationship(back_populates="parent", lazy="selectin")
 
     loop: Mapped[LoopEnum] = mapped_column(server_default=LoopEnum.first.name)
 
@@ -117,8 +116,10 @@ class Child(Base):
     __tablename__ = 'childs'
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
+    name: Mapped[str]
     gender: Mapped[Optional[GenderEnum]]
     age: Mapped[Optional[AgeEnum]]
+    activities: Mapped[str]
 
     parent_tg_id: Mapped[int] = mapped_column(ForeignKey('users.tg_id', ondelete='CASCADE'))
 
