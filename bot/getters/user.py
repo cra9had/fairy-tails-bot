@@ -14,7 +14,7 @@ from aiogram_dialog.widgets.text import Const
 from aiogram_dialog import DialogManager, StartMode, ShowMode
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.db.models import LoopEnum, TaleParams
+from bot.db.models import LoopEnum, TaleParams, User, SubscriptionEnum
 from bot.db.orm import get_current_tail_index, get_current_episode_index, get_user_loop, change_user_loop, get_user, \
     change_user_chapters, add_user
 from bot.on_clicks.user import to_child, to_profile, to_start, to_buy_subscription
@@ -60,12 +60,19 @@ async def get_payment_url(dialog_manager: DialogManager, **kwargs):
 
 async def get_full_info_for_dialog(*args, **kwargs):
     dialog_manager: DialogManager = args[1]
+    session: AsyncSession = dialog_manager.middleware_data["session"]
 
-    user_child_settings = {}  # LOAD USER SETTED SETTING HERE FROM DATABASE!
+    user_id = dialog_manager.event.from_user.id
+
+    user: User | None = await get_user(session=session, user_id=user_id)
+    user_child = user.child
 
     # LOAD USER TAILS HERE FROM DATABASE!
     data = {
-        'user_child_settings': user_child_settings,
+        "gender": user_child.gender.value,
+        "name": user_child.name,
+        "age": user_child.age.value,
+        "activities": user_child.activities
     }
 
     # upload all collected settings to dialog
@@ -149,7 +156,8 @@ async def create_task_to_tail(arq_pool: ArqRedis, dialog_manager: DialogManager,
 
     tg = TaleGenerator(provided_history=provided_history)
     if tale_params.is_season_begin():
-        await event_update.callback_query.message.answer(WAIT_GENERATION_TALE)
+        if user.subscription_plan is SubscriptionEnum.trial_plan:
+            await event_update.callback_query.message.answer(WAIT_GENERATION_TALE)
         tale = await tg.generate_first_chapter(tale_params.season)
     else:
         await event_update.callback_query.message.answer(NEXT_EPISODE_GENERATION)
