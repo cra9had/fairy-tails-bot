@@ -3,7 +3,7 @@ from typing import Any
 
 from aiogram.types import CallbackQuery
 from aiogram_dialog import Window, DialogManager
-from aiogram_dialog.widgets.kbd import Button, Next, Column, Url, Select
+from aiogram_dialog.widgets.kbd import Button, Next, Column, Url, Select, Back
 from aiogram_dialog.widgets.text import Const, Format
 
 from bot.getters.user import get_plans, create_schedule_loop4, get_payment_url
@@ -51,6 +51,7 @@ def get_buy_subscription_window():
         Column(
             Url(Const("Перейти к оплате"), Format('{payment_url}')),
         ),
+        Back(Const("🔙 Тарифы")),
         parse_mode='HTML',
         getter=get_payment_url,
         state=Subscription.subscription
