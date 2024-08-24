@@ -67,16 +67,16 @@ async def get_full_info_for_dialog(*args, **kwargs):
     user: User | None = await get_user(session=session, user_id=user_id)
     user_child = user.child
 
-    # LOAD USER TAILS HERE FROM DATABASE!
-    data = {
-        "gender": user_child.gender.value,
-        "name": user_child.name,
-        "age": user_child.age.value,
-        "activities": user_child.activities
-    }
+    if user_child:
+        data = {
+            "gender": user_child.gender.value,
+            "name": user_child.name,
+            "age": user_child.age.value,
+            "activities": user_child.activities
+        }
 
-    # upload all collected settings to dialog
-    dialog_manager.dialog_data.update(data)
+        # upload all collected settings to dialog
+        dialog_manager.dialog_data.update(data)
 
 
 async def get_setted_child_settings(dialog_manager: DialogManager, **kwargs):
